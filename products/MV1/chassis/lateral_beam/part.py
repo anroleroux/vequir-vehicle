@@ -1,0 +1,48 @@
+"""Lateral beam
+
+A straight beam of the MV1 chassis, running in the lateral direction
+(sideways, along y), shorter than the longitudinal beam, with a disc on top
+and a pin sticking up from the disc's middle. The longitudinal beam's end
+disc sits on this disc, the pin in its hole.
+
+Assumptions where the description is silent:
+- a solid bar of rectangular section, 120 mm long (y), 10 mm wide (x) and
+  10 mm high (z), the same section as the longitudinal beam;
+- the disc is the longitudinal beam's disc diameter (20 mm) and 3 mm thick,
+  centred on the beam's middle, on its top;
+- the pin is 0.2 mm smaller than the longitudinal beam's hole (3.2 mm in a
+  3.4 mm hole) and 8 mm tall, shorter than the hole is deep, so it locates
+  the disc without reaching its top;
+- lateral along y (+y is the left), centred on x = 0 and y = 0 (the
+  vehicle's centreline), standing on z = 0.
+"""
+import cadquery as cq
+
+beam = load_part("../beam")  # the longitudinal beam this one supports
+
+# parameters, in mm
+length = 120.0  # lateral, along y; shorter than the longitudinal beam
+width = beam.width  # longitudinal, along x
+height = beam.height  # vertical, along z
+disc_diameter = beam.disc_diameter  # matches the longitudinal beam's end disc
+disc_thickness = 3.0
+pin_clearance = 0.2  # diametral, in the longitudinal beam's hole
+pin_diameter = beam.hole_diameter - pin_clearance
+pin_height = beam.disc_thickness - 2.0  # stops short of the hole's top
+
+top = height + disc_thickness  # the disc's top face: the longitudinal beam's seat
+
+bar = cq.Workplane("XY").rect(width, length).extrude(height)
+disc = cq.Workplane("XY", origin=(0, 0, height)).circle(disc_diameter / 2).extrude(disc_thickness)
+pin = cq.Workplane("XY", origin=(0, 0, top)).circle(pin_diameter / 2).extrude(pin_height)
+result = bar.union(disc).union(pin)
+
+regions = {
+    "seat": result.faces(cq.selectors.NearestToPointSelector((disc_diameter / 2 - 1, 0, top))),
+    "pin": result.faces("%CYLINDER").faces(
+        cq.selectors.NearestToPointSelector((0, 0, top + pin_height / 2))),
+    "bottom": result.faces("<Z"),
+}
+
+if "show_object" in globals():  # CQ-editor
+    show_object(result, name="part")

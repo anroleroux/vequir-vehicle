@@ -7,4 +7,5 @@ beam under these discs, their centred pins in the holes.
 
 A guide built into the beam's top, at its middle and open to the top,
 holds the sliding beam, which rests and slides sideways in it, across the
-top of the beam.
+top of the beam. The guide extends sideways past the beam and is closed at
+the bottom.

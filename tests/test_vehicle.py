@@ -34,17 +34,21 @@ def test_the_catalogue_holds_the_mv1_chassis():
 def test_the_chassis_beam_runs_longitudinally_with_a_holed_disc_at_each_end(tmp_path):
     """Longest along x, centred on the centreline, standing on z = 0; a 20 mm
     disc on each end, its centre line in z, with a hole through it; a guide
-    open to the top at the middle: two 3 x 10 x 5 mm cheeks on the top."""
+    open to the top and closed at the bottom at the middle: a U-channel
+    40 mm along y, past each side of the beam, its floor flush with the
+    beam's top."""
     summary = _summary(build_part(PRODUCTS / "MV1/chassis/beam/part.py", tmp_path / "out"))
     box = summary["bounding_box"]
-    assert box["size"] == pytest.approx([220.0, 20.0, 15.0])  # 200 between disc centres; cheeks
-    assert box["min"] == pytest.approx([-110.0, -10.0, 0.0])
+    assert box["size"] == pytest.approx([220.0, 40.0, 15.0])  # 200 between disc centres; the guide
+    assert box["min"] == pytest.approx([-110.0, -20.0, 0.0])
     assert summary["n_solids"] == 1
     assert summary["face_types"]["CYLINDER"] == 4  # two disc rims, two holes
-    cheeks = 2 * 3.0 * 10.0 * 5.0
+    u_section = 16.4 * 8.0 - 10.4 * 5.0  # 3 mm floor and cheeks around the 10.4 mm channel
+    in_the_bar = 16.4 * 3.0 * 10.0  # the floor where the beam already is
     bar_and_discs = 24188.3783  # the bar and its two holed discs
-    assert summary["volume_mm3"] == pytest.approx(bar_and_discs + cheeks, abs=0.01)
-    for region in ("guide_floor", "guide_front_cheek", "guide_rear_cheek"):
+    assert summary["volume_mm3"] == pytest.approx(
+        bar_and_discs + u_section * 40.0 - in_the_bar, abs=0.01)
+    for region in ("guide_floor", "guide_underside", "guide_front_cheek", "guide_rear_cheek"):
         assert summary["regions"][region]["count"] == 1
     assert summary["regions"]["front_hole"]["count"] == 1
     assert summary["regions"]["rear_hole"]["count"] == 1
@@ -92,4 +96,4 @@ def test_the_sliding_beam_rests_in_the_guide_on_top_of_the_beam(tmp_path):
     assert sliding["bounding_box_min"][2] == pytest.approx(beam["bounding_box_min"][2] + 10.0)
     assert summary["interference"] == []  # clear of the cheeks
     area = {c["b"]: c["area_mm2"] for c in summary["contacts"]}["chassis/sliding_beam"]
-    assert area == pytest.approx(10.0 * 10.0)  # on the guide's floor, across the beam
+    assert area == pytest.approx(10.0 * 40.0)  # on the guide's floor, its whole length

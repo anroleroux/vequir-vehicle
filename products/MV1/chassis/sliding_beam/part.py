@@ -9,8 +9,9 @@ Assumptions where the description is silent:
 - a solid bar of rectangular section, 10 mm high like the other beams, half
   the lateral beams' length (60 mm);
 - 0.2 mm narrower than the guide on each side (10 mm in the 10.4 mm
-  channel), sized from it; it rests on the guide's floor (the longitudinal
-  beam's top) and slides laterally (along y) between the cheeks;
+  channel), sized from it; it rests on the guide's floor (flush with the
+  longitudinal beam's top) along the guide's 40 mm and slides laterally
+  (along y) between the cheeks;
 - lateral along y (+y is the left), centred on x = 0 and y = 0, standing on
   z = 0 (the assembly lifts it onto the longitudinal beam's top).
 """

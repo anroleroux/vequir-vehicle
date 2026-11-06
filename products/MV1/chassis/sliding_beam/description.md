@@ -5,3 +5,6 @@ lateral beams.
 
 It rests and slides sideways in a guide built into the longitudinal beam,
 which is open to the top.
+
+At each end, plates at the top and the bottom of the beam, with hinge
+holes through both plates.

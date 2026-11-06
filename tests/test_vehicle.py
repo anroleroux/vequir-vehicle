@@ -97,3 +97,17 @@ def test_the_sliding_beam_rests_in_the_guide_on_top_of_the_beam(tmp_path):
     assert summary["interference"] == []  # clear of the cheeks
     area = {c["b"]: c["area_mm2"] for c in summary["contacts"]}["chassis/sliding_beam"]
     assert area == pytest.approx(10.0 * 40.0)  # on the guide's floor, its whole length
+
+
+def test_the_sliding_beams_ends_are_forks_with_a_hinge_through_both_plates(tmp_path):
+    """At each end a 3 mm top and bottom plate, 10 mm long, a 4 mm gap
+    between them, and a 3.4 mm hinge hole through both, 5 mm in from the end."""
+    summary = _summary(build_part(PRODUCTS / "MV1/chassis/sliding_beam/part.py",
+                                  tmp_path / "out"))
+    assert summary["bounding_box"]["size"] == pytest.approx([10.0, 60.0, 10.0])
+    gaps = 2 * 10.0 * 10.0 * 4.0
+    holes = 4 * math.pi * 1.7 ** 2 * 3.0  # one through each plate
+    assert summary["volume_mm3"] == pytest.approx(10 * 60 * 10 - gaps - holes, abs=0.01)
+    assert summary["face_types"]["CYLINDER"] == 4
+    assert summary["regions"]["left_hinge"]["count"] == 2  # top and bottom plate
+    assert summary["regions"]["right_hinge"]["count"] == 2

@@ -23,10 +23,10 @@ Every part and assembly here is modelled in the vehicle's axes:
 | Designation | What |
 | --- | --- |
 | `MV1` | product: the first model vehicle |
-| `MV1/chassis` | assembly: the longitudinal beam carried on two lateral beams, its end discs seated on theirs, their pins in its holes, and the sliding beam across its middle, on top, in its guide |
-| `MV1/chassis/beam` | part: a beam running longitudinally (along x), 200 mm between the 20 mm discs at its ends, each with a hole through its middle, and a guide across its top at the middle, a U-channel open to the top and closed at the bottom, 40 mm long, sunk into the beam, for the sliding beam |
+| `MV1/chassis` | assembly: the longitudinal beam carried on two lateral beams, its end discs seated on theirs, their pins in its holes, and the sliding plate across the middle of its bottom |
+| `MV1/chassis/beam` | part: a beam running longitudinally (along x), 200 mm between the 20 mm discs at its ends, each with a hole through its middle |
 | `MV1/chassis/lateral_beam` | part: a shorter beam running laterally (along y), 120 mm, with a disc on top and a pin sticking up from its middle |
-| `MV1/chassis/sliding_beam` | part: a lateral beam half the lateral beams' length (60 mm, 80 mm with its end plates), resting across the longitudinal beam, sunk 5 mm into it, sliding sideways in its guide; past each end a 20 mm wide top and bottom plate, rounded at its outer corners, with two hinge holes side by side through both |
+| `MV1/chassis/sliding_plate` | part: a 3 mm plate, a dog biscuit seen from the top: a 60 × 10 mm bar (half the lateral beams) with a 20 mm wide end past each end, rounded at its outer corners, with two hinge holes side by side; it slides sideways along the longitudinal beam's bottom |
 
 ```
 products/<VEHICLE>/product.md                         "# Title", then a blurb

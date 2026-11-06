@@ -23,9 +23,10 @@ Every part and assembly here is modelled in the vehicle's axes:
 | Designation | What |
 | --- | --- |
 | `MV1` | product: the first model vehicle |
-| `MV1/chassis` | assembly: the longitudinal beam carried on two lateral beams, its end discs seated on theirs, their pins in its holes |
+| `MV1/chassis` | assembly: the longitudinal beam carried on two lateral beams, its end discs seated on theirs, their pins in its holes, and the sliding beam across the middle of its underside |
 | `MV1/chassis/beam` | part: a beam running longitudinally (along x), 200 mm between the 20 mm discs at its ends, each with a hole through its middle |
 | `MV1/chassis/lateral_beam` | part: a shorter beam running laterally (along y), 120 mm, with a disc on top and a pin sticking up from its middle |
+| `MV1/chassis/sliding_beam` | part: a lateral beam half the lateral beams' length (60 mm), sliding across the middle of the longitudinal beam's underside |
 
 ```
 products/<VEHICLE>/product.md                         "# Title", then a blurb

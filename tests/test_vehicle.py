@@ -27,7 +27,8 @@ def _summary(result):
 
 def test_the_catalogue_holds_the_mv1_chassis():
     assert sorted(e.designation for e in discover_all(PRODUCTS)) == [
-        "MV1/chassis", "MV1/chassis/beam", "MV1/chassis/lateral_beam"]
+        "MV1/chassis", "MV1/chassis/beam", "MV1/chassis/lateral_beam",
+        "MV1/chassis/sliding_beam"]
 
 
 def test_the_chassis_beam_runs_longitudinally_with_a_holed_disc_at_each_end(tmp_path):
@@ -59,12 +60,28 @@ def test_the_lateral_beams_carry_the_beam_on_their_discs_and_pins(tmp_path):
     summary = _summary(build_part(PRODUCTS / "MV1/chassis/assembly.py", tmp_path / "out"))
     assert summary["interference"] == []
     seat = math.pi * (10.0 ** 2 - 1.7 ** 2)
-    assert sorted((c["a"], c["b"]) for c in summary["contacts"]) == [
+    contacts = {(c["a"], c["b"]): c["area_mm2"] for c in summary["contacts"]}
+    assert sorted(contacts) == [
         ("chassis/beam", "chassis/front_lateral_beam"),
-        ("chassis/beam", "chassis/rear_lateral_beam")]
-    for contact in summary["contacts"]:
-        assert contact["area_mm2"] == pytest.approx(seat, rel=1e-3)
-    beam, front, rear = summary["components"]
+        ("chassis/beam", "chassis/rear_lateral_beam"),
+        ("chassis/beam", "chassis/sliding_beam")]
+    assert contacts[("chassis/beam", "chassis/front_lateral_beam")] == pytest.approx(seat, rel=1e-3)
+    assert contacts[("chassis/beam", "chassis/rear_lateral_beam")] == pytest.approx(seat, rel=1e-3)
+    beam, front, rear, sliding = summary["components"]
     assert beam["bounding_box_min"][2] == pytest.approx(13.0)  # on the 3 mm discs
     assert front["bounding_box_min"][0] == pytest.approx(90.0)
     assert rear["bounding_box_max"][0] == pytest.approx(-90.0)
+
+
+def test_the_sliding_beam_crosses_the_middle_of_the_beams_underside(tmp_path):
+    """Lateral, half the lateral beams' length, against the beam's underside
+    at x = 0: a 10 x 10 mm contact."""
+    summary = _summary(build_part(PRODUCTS / "MV1/chassis/assembly.py", tmp_path / "out"))
+    beam, front, rear, sliding = summary["components"]
+    assert sliding["name"] == "chassis/sliding_beam"
+    size = [sliding["bounding_box_max"][i] - sliding["bounding_box_min"][i] for i in range(3)]
+    assert size == pytest.approx([10.0, 60.0, 10.0])  # half the lateral beams' 120
+    assert sliding["bounding_box_min"][:2] == pytest.approx([-5.0, -30.0])
+    assert sliding["bounding_box_max"][2] == pytest.approx(beam["bounding_box_min"][2])
+    area = {c["b"]: c["area_mm2"] for c in summary["contacts"]}["chassis/sliding_beam"]
+    assert area == pytest.approx(100.0)

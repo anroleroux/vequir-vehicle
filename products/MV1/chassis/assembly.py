@@ -7,6 +7,7 @@ import cadquery as cq
 
 beam = load_part("beam")
 lateral = load_part("lateral_beam")
+sliding = load_part("sliding_beam")
 
 seat_z = lateral.top  # the lateral beams' disc tops
 
@@ -16,5 +17,7 @@ result.add(beam.result, name="beam", color=cq.Color(0.25, 0.40, 0.55),
 for name, x in (("front_lateral_beam", beam.length / 2), ("rear_lateral_beam", -beam.length / 2)):
     result.add(lateral.result, name=name, color=cq.Color(0.80, 0.45, 0.20),
                loc=cq.Location(cq.Vector(x, 0, 0)))
+result.add(sliding.result, name="sliding_beam", color=cq.Color(0.35, 0.60, 0.35),
+           loc=cq.Location(cq.Vector(0, 0, seat_z - sliding.height)))  # against the underside
 
 regions = {}

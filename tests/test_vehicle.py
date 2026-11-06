@@ -40,6 +40,10 @@ def test_the_chassis_beam_runs_longitudinally_with_a_holed_disc_at_each_end(tmp_
     assert box["min"] == pytest.approx([-110.0, -10.0, 0.0])
     assert summary["n_solids"] == 1
     assert summary["face_types"]["CYLINDER"] == 4  # two disc rims, two holes
+    slot = 4.2 * (6.4 + 8.4) / 2 * 10.0  # the dovetail across the underside
+    discs = 2 * (math.pi * 10.0 ** 2 / 2 * 10.0 - math.pi * 1.7 ** 2 * 10.0)
+    assert summary["volume_mm3"] == pytest.approx(200 * 10 * 10 + discs - slot)
+    assert summary["regions"]["slot_top"]["count"] == 1
     assert summary["regions"]["front_hole"]["count"] == 1
     assert summary["regions"]["rear_hole"]["count"] == 1
 
@@ -74,14 +78,15 @@ def test_the_lateral_beams_carry_the_beam_on_their_discs_and_pins(tmp_path):
 
 
 def test_the_sliding_beam_crosses_the_middle_of_the_beams_underside(tmp_path):
-    """Lateral, half the lateral beams' length, against the beam's underside
-    at x = 0: a 10 x 10 mm contact."""
+    """Lateral, half the lateral beams' length, its dovetail tongue in the
+    beam's slot at x = 0 with clearance, its shoulders on the underside."""
     summary = _summary(build_part(PRODUCTS / "MV1/chassis/assembly.py", tmp_path / "out"))
     beam, front, rear, sliding = summary["components"]
     assert sliding["name"] == "chassis/sliding_beam"
     size = [sliding["bounding_box_max"][i] - sliding["bounding_box_min"][i] for i in range(3)]
-    assert size == pytest.approx([10.0, 60.0, 10.0])  # half the lateral beams' 120
+    assert size == pytest.approx([10.0, 60.0, 14.0])  # half the lateral beams' 120; 4 mm tongue
     assert sliding["bounding_box_min"][:2] == pytest.approx([-5.0, -30.0])
-    assert sliding["bounding_box_max"][2] == pytest.approx(beam["bounding_box_min"][2])
+    assert sliding["bounding_box_max"][2] == pytest.approx(beam["bounding_box_min"][2] + 4.0)
+    assert summary["interference"] == []  # the tongue clears the slot
     area = {c["b"]: c["area_mm2"] for c in summary["contacts"]}["chassis/sliding_beam"]
-    assert area == pytest.approx(100.0)
+    assert area == pytest.approx((10.0 - 6.4) * 10.0)  # the shoulders beside the slot's mouth

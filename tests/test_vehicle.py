@@ -91,23 +91,24 @@ def test_the_sliding_beam_rests_in_the_guide_on_top_of_the_beam(tmp_path):
     beam, front, rear, sliding = summary["components"]
     assert sliding["name"] == "chassis/sliding_beam"
     size = [sliding["bounding_box_max"][i] - sliding["bounding_box_min"][i] for i in range(3)]
-    assert size == pytest.approx([10.0, 60.0, 10.0])  # half the lateral beams' 120
-    assert sliding["bounding_box_min"][:2] == pytest.approx([-5.0, -30.0])
+    assert size == pytest.approx([20.0, 80.0, 10.0])  # a 60 mm bar, half the lateral beams' 120, and plates
+    assert sliding["bounding_box_min"][:2] == pytest.approx([-10.0, -40.0])
     assert sliding["bounding_box_min"][2] == pytest.approx(beam["bounding_box_min"][2] + 10.0)
     assert summary["interference"] == []  # clear of the cheeks
     area = {c["b"]: c["area_mm2"] for c in summary["contacts"]}["chassis/sliding_beam"]
     assert area == pytest.approx(10.0 * 40.0)  # on the guide's floor, its whole length
 
 
-def test_the_sliding_beams_ends_are_forks_with_a_hinge_through_both_plates(tmp_path):
-    """At each end a 3 mm top and bottom plate, 10 mm long, a 4 mm gap
-    between them, and a 3.4 mm hinge hole through both, 5 mm in from the end."""
+def test_the_sliding_beams_ends_carry_plates_with_two_hinges_side_by_side(tmp_path):
+    """Past each end of the 60 mm bar, a 20 mm wide top and bottom plate,
+    3 mm thick and 10 mm long, a 4 mm gap between them, and two 3.4 mm hinge
+    holes side by side (10 mm apart along x) through both."""
     summary = _summary(build_part(PRODUCTS / "MV1/chassis/sliding_beam/part.py",
                                   tmp_path / "out"))
-    assert summary["bounding_box"]["size"] == pytest.approx([10.0, 60.0, 10.0])
-    gaps = 2 * 10.0 * 10.0 * 4.0
-    holes = 4 * math.pi * 1.7 ** 2 * 3.0  # one through each plate
-    assert summary["volume_mm3"] == pytest.approx(10 * 60 * 10 - gaps - holes, abs=0.01)
-    assert summary["face_types"]["CYLINDER"] == 4
-    assert summary["regions"]["left_hinge"]["count"] == 2  # top and bottom plate
-    assert summary["regions"]["right_hinge"]["count"] == 2
+    assert summary["bounding_box"]["size"] == pytest.approx([20.0, 80.0, 10.0])
+    plates = 4 * 20.0 * 10.0 * 3.0
+    holes = 8 * math.pi * 1.7 ** 2 * 3.0  # two hinges an end, one hole in each plate
+    assert summary["volume_mm3"] == pytest.approx(10 * 60 * 10 + plates - holes, abs=0.01)
+    assert summary["face_types"]["CYLINDER"] == 8
+    assert summary["regions"]["left_hinges"]["count"] == 4  # 2 hinges x top and bottom plate
+    assert summary["regions"]["right_hinges"]["count"] == 4

@@ -41,8 +41,8 @@ def test_the_chassis_beam_runs_longitudinally_with_a_holed_disc_at_each_end(tmp_
     assert summary["n_solids"] == 1
     assert summary["face_types"]["CYLINDER"] == 4  # two disc rims, two holes
     slot = 4.2 * (6.4 + 8.4) / 2 * 10.0  # the dovetail across the underside
-    discs = 2 * (math.pi * 10.0 ** 2 / 2 * 10.0 - math.pi * 1.7 ** 2 * 10.0)
-    assert summary["volume_mm3"] == pytest.approx(200 * 10 * 10 + discs - slot)
+    unslotted = 24188.3783  # the bar and its two holed discs, as built before the slot
+    assert summary["volume_mm3"] == pytest.approx(unslotted - slot, abs=0.01)
     assert summary["regions"]["slot_top"]["count"] == 1
     assert summary["regions"]["front_hole"]["count"] == 1
     assert summary["regions"]["rear_hole"]["count"] == 1

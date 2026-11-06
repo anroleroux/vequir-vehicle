@@ -19,6 +19,6 @@ for name, x in (("front_lateral_beam", beam.length / 2), ("rear_lateral_beam", -
     result.add(lateral.result, name=name, color=cq.Color(0.80, 0.45, 0.20),
                loc=cq.Location(cq.Vector(x, 0, 0)))
 result.add(sliding.result, name="sliding_beam", color=cq.Color(0.35, 0.60, 0.35),
-           loc=cq.Location(cq.Vector(0, 0, seat_z + beam.height)))  # on the guide's floor
+           loc=cq.Location(cq.Vector(0, 0, seat_z + beam.guide_floor_z)))  # on the guide's floor
 
 regions = {}

@@ -15,8 +15,8 @@ Assumptions where the description is silent:
 - the two hinge axes are vertical (z), side by side along x (5 mm either
   side of the centreline), in the middle of each end: a 3.4 mm hole (an M3
   clearance, like the beam's disc holes);
-- its top slides against the longitudinal beam's bottom; nothing yet holds
-  it up to the beam;
+- its top slides against the longitudinal beam's bottom; the clip around
+  the beam holds it there;
 - lateral along y (+y is the left), centred on x = 0 and y = 0, standing on
   z = 0 (the assembly lifts it to the longitudinal beam's bottom).
 """

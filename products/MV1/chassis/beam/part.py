@@ -2,8 +2,8 @@
 
 A straight beam of the MV1 chassis, running in the longitudinal direction
 (front to back, along x), with a flat disc at each end, its centre line in
-z, and a hole through each disc's middle; a dovetail slot across its
-underside, at the middle, for the sliding beam.
+z, and a hole through each disc's middle; a guide on its top, at the
+middle, open to the top, that the sliding beam rests and slides in.
 
 Assumptions where the description is silent:
 - a solid bar of rectangular section, 200 mm long between the disc centres
@@ -14,10 +14,11 @@ Assumptions where the description is silent:
   beam's disc;
 - the hole is 3.4 mm, straight through the disc (an M3 clearance, taking a
   3 mm pin with room to spare);
-- the slot runs laterally (along y) right across the beam's underside at
-  x = 0: a dovetail 6.4 mm wide at its mouth, 8.4 mm at its top, 4.2 mm
-  deep, so it holds the sliding beam's tongue up against the beam and lets
-  it slide only sideways (the sliding beam sizes its tongue from these);
+- the guide is a channel running laterally (along y) across the beam's
+  top at x = 0, between two cheeks standing on the beam: the channel
+  10.4 mm wide (a 10 mm sliding beam with 0.2 mm clearance each side), its
+  floor the beam's top, each cheek 3 mm thick and 5 mm tall, as wide as the
+  beam (10 mm, along y); the sliding beam sizes itself from it;
 - longitudinal along x (+x is the front), centred on x = 0 and y = 0 (the
   vehicle's centreline), standing on z = 0.
 """
@@ -30,9 +31,9 @@ height = 10.0  # vertical, along z
 disc_diameter = 20.0  # the end discs, centre line in z
 disc_thickness = height  # flush with the beam's top and bottom
 hole_diameter = 3.4  # through each disc's middle
-slot_mouth = 6.4  # dovetail slot's width at the underside, along x
-slot_top = 8.4  # its width at the top of the slot, along x
-slot_depth = 4.2  # up from the underside
+guide_width = 10.4  # the channel between the cheeks, along x
+guide_wall = 3.0  # each cheek's thickness, along x
+guide_height = 5.0  # the cheeks, up from the beam's top
 
 disc_x = [length / 2, -length / 2]  # front, rear
 
@@ -49,22 +50,25 @@ holes = (
     .circle(hole_diameter / 2)
     .extrude(disc_thickness)
 )
-slot = (
-    cq.Workplane("XZ")  # the dovetail's profile in x-z, run right across in y
-    .polyline([(-slot_mouth / 2, 0), (slot_mouth / 2, 0),
-               (slot_top / 2, slot_depth), (-slot_top / 2, slot_depth)])
-    .close()
-    .extrude(width / 2, both=True)
+cheek_x = guide_width / 2 + guide_wall / 2  # each cheek's centre, either side of x = 0
+cheeks = (
+    cq.Workplane("XY", origin=(0, 0, height))
+    .pushPoints([(cheek_x, 0), (-cheek_x, 0)])
+    .rect(guide_wall, width)
+    .extrude(guide_height)
 )
-result = bar.union(discs).cut(holes).cut(slot)
+result = bar.union(discs).cut(holes).union(cheeks)
 
 regions = {
     "front_hole": result.faces("%CYLINDER").faces(
         cq.selectors.NearestToPointSelector((length / 2, 0, height / 2))),
     "rear_hole": result.faces("%CYLINDER").faces(
         cq.selectors.NearestToPointSelector((-length / 2, 0, height / 2))),
-    "slot_top": result.faces(cq.selectors.NearestToPointSelector((0, 0, slot_depth))),
-    "top": result.faces(">Z"),
+    "guide_floor": result.faces(cq.selectors.NearestToPointSelector((0, 0, height))),
+    "guide_front_cheek": result.faces(
+        cq.selectors.NearestToPointSelector((guide_width / 2, 0, height + guide_height / 2))),
+    "guide_rear_cheek": result.faces(
+        cq.selectors.NearestToPointSelector((-guide_width / 2, 0, height + guide_height / 2))),
     "bottom": result.faces("<Z"),  # its seat on the lateral beams' discs
 }
 

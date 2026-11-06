@@ -33,17 +33,19 @@ def test_the_catalogue_holds_the_mv1_chassis():
 
 def test_the_chassis_beam_runs_longitudinally_with_a_holed_disc_at_each_end(tmp_path):
     """Longest along x, centred on the centreline, standing on z = 0; a 20 mm
-    disc on each end, its centre line in z, with a hole through it."""
+    disc on each end, its centre line in z, with a hole through it; a guide
+    open to the top at the middle: two 3 x 10 x 5 mm cheeks on the top."""
     summary = _summary(build_part(PRODUCTS / "MV1/chassis/beam/part.py", tmp_path / "out"))
     box = summary["bounding_box"]
-    assert box["size"] == pytest.approx([220.0, 20.0, 10.0])  # 200 between disc centres
+    assert box["size"] == pytest.approx([220.0, 20.0, 15.0])  # 200 between disc centres; cheeks
     assert box["min"] == pytest.approx([-110.0, -10.0, 0.0])
     assert summary["n_solids"] == 1
     assert summary["face_types"]["CYLINDER"] == 4  # two disc rims, two holes
-    slot = 4.2 * (6.4 + 8.4) / 2 * 10.0  # the dovetail across the underside
-    unslotted = 24188.3783  # the bar and its two holed discs, as built before the slot
-    assert summary["volume_mm3"] == pytest.approx(unslotted - slot, abs=0.01)
-    assert summary["regions"]["slot_top"]["count"] == 1
+    cheeks = 2 * 3.0 * 10.0 * 5.0
+    bar_and_discs = 24188.3783  # the bar and its two holed discs
+    assert summary["volume_mm3"] == pytest.approx(bar_and_discs + cheeks, abs=0.01)
+    for region in ("guide_floor", "guide_front_cheek", "guide_rear_cheek"):
+        assert summary["regions"][region]["count"] == 1
     assert summary["regions"]["front_hole"]["count"] == 1
     assert summary["regions"]["rear_hole"]["count"] == 1
 
@@ -77,16 +79,17 @@ def test_the_lateral_beams_carry_the_beam_on_their_discs_and_pins(tmp_path):
     assert rear["bounding_box_max"][0] == pytest.approx(-90.0)
 
 
-def test_the_sliding_beam_crosses_the_middle_of_the_beams_underside(tmp_path):
-    """Lateral, half the lateral beams' length, its dovetail tongue in the
-    beam's slot at x = 0 with clearance, its shoulders on the underside."""
+def test_the_sliding_beam_rests_in_the_guide_on_top_of_the_beam(tmp_path):
+    """Lateral, half the lateral beams' length, on the beam's top at x = 0
+    (the beam goes underneath it), between the guide's cheeks with 0.2 mm
+    clearance each side."""
     summary = _summary(build_part(PRODUCTS / "MV1/chassis/assembly.py", tmp_path / "out"))
     beam, front, rear, sliding = summary["components"]
     assert sliding["name"] == "chassis/sliding_beam"
     size = [sliding["bounding_box_max"][i] - sliding["bounding_box_min"][i] for i in range(3)]
-    assert size == pytest.approx([10.0, 60.0, 14.0])  # half the lateral beams' 120; 4 mm tongue
+    assert size == pytest.approx([10.0, 60.0, 10.0])  # half the lateral beams' 120
     assert sliding["bounding_box_min"][:2] == pytest.approx([-5.0, -30.0])
-    assert sliding["bounding_box_max"][2] == pytest.approx(beam["bounding_box_min"][2] + 4.0)
-    assert summary["interference"] == []  # the tongue clears the slot
+    assert sliding["bounding_box_min"][2] == pytest.approx(beam["bounding_box_min"][2] + 10.0)
+    assert summary["interference"] == []  # clear of the cheeks
     area = {c["b"]: c["area_mm2"] for c in summary["contacts"]}["chassis/sliding_beam"]
-    assert area == pytest.approx((10.0 - 6.4) * 10.0)  # the shoulders beside the slot's mouth
+    assert area == pytest.approx(10.0 * 10.0)  # on the guide's floor, across the beam

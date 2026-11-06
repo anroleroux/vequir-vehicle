@@ -1,6 +1,7 @@
 A sliding beam, perpendicular to the longitudinal beam (lateral, along y)
-and in the middle of it, on its underside. It is half the length of the
+and in the middle of it, on top of it: the longitudinal beam goes
+underneath the sliding beam. It is half the length of the
 lateral beams.
 
-It runs in a slot in the longitudinal beam's underside, which holds it
-against the beam and lets it slide sideways.
+It rests and slides sideways in a guide built into the longitudinal beam,
+which is open to the top.

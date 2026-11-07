@@ -3,7 +3,8 @@
 A flat plate in the x-y plane (its thickness along z), the plates' width,
 with a hinge along x at each end: two outer knuckles either side of a
 linkage plate's middle one. The arms are the linkage's H links, at the top
-and bottom; the side plates are its I links. Two arms of equal length make the four-bar linkage
+and bottom; the side plates are its I links. A slot cut in from each hinge
+between its outer knuckles gives the arm its H shape. Two arms of equal length make the four-bar linkage
 a parallelogram, so the moving plate stays parallel to the fixed one.
 
 Assumptions where the description is silent:
@@ -13,6 +14,10 @@ Assumptions where the description is silent:
   the plate's middle knuckle (x = +-5 mm) to its edges; between them,
   around each axis, it is cut back to 3.3 mm from the axis so it turns
   clear of the plate's middle knuckle;
+- the slot is as wide as the gap between the outer knuckles (10 mm) and
+  runs 12 mm in from each hinge axis, leaving a 16 mm crossbar in the
+  middle and two 10 mm wide legs either side, so the plate's middle
+  knuckle and strip swing freely in it;
 - a 2.2 mm hole along each axis, for a 2 mm pin;
 - the axes at y = 0 and y = 40 mm, 3 mm up (so the knuckles stand on
   z = 0), the plate on their mid-plane, centred on x = 0.
@@ -29,6 +34,7 @@ knuckle_radius = plate.knuckle_radius
 middle = plate.middle  # the outer knuckles start here, each side of x = 0
 cut_radius = plate.knuckle_radius + plate.turn_clearance  # around the plate's knuckles
 hole_diameter = plate.hole_diameter
+slot_depth = 12.0  # the H's slot, in from each hinge axis, along y
 
 axis_z = knuckle_radius
 axes_y = [0.0, length]
@@ -45,6 +51,13 @@ for y in axes_y:
     for x0, x1 in ((middle, width / 2), (-width / 2, -middle)):
         result = result.union(_along_x(x0, x1, y, axis_z, knuckle_radius))
     result = result.cut(_along_x(-middle, middle, y, axis_z, cut_radius))
+    inward = 1 if y == axes_y[0] else -1  # towards the crossbar
+    slot = (
+        cq.Workplane("XY", origin=(0, y + inward * slot_depth / 2, -1))
+        .rect(2 * middle, slot_depth)
+        .extrude(2 * knuckle_radius + 2)
+    )
+    result = result.cut(slot)
     result = result.cut(_along_x(-width, width, y, axis_z, hole_diameter / 2))
 
 regions = {

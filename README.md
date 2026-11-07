@@ -25,10 +25,11 @@ Every part and assembly here is modelled in the vehicle's axes:
 | `MV1` | product, assembled: the chassis with a linkage mounted on each upright of its steering beams, four in all |
 | `MV1/chassis` | assembly: the longitudinal beam carried on two lateral steering beams, its end discs seated on theirs, their pins in its holes, their T legs pointing inwards |
 | `MV1/chassis/beam` | part: a beam running longitudinally (along x), 200 mm between the 20 mm discs at its ends, each with a hole through its middle |
-| `MV1/chassis/lateral_beam` | part: a steering beam running laterally (along y), 120 mm, with a disc on top, a pin sticking up from its middle to turn about, a 40 mm T leg from its middle along x to steer by, and its ends extended down and widened into 30 × 50 mm uprights (the linkage plate's size) |
-| `MV1/linkage` | assembly: a four-bar linkage moving in y-z: a fixed plate in the x-z plane, two equal arms hinged to its top and bottom, and a moving plate hinged to their far ends, kept parallel |
-| `MV1/linkage/plate` | part: an I link: a straight 9.6 × 50 × 3 mm strip in the x-z plane, as wide as the middle knuckle of the hinge (about an x axis) at its top and bottom, flush with its flat back face, which mounts on an upright; used for the fixed and the moving plate |
-| `MV1/linkage/arm` | part: an H link: a 30 mm wide, 3 mm plate, 40 mm between the hinges at its ends, each two outer knuckles |
+| `MV1/chassis/lateral_beam` | part: a steering beam running laterally (along y), 120 mm, with a disc on top, a pin sticking up from its middle to turn about, a 40 mm T leg from its middle along x to steer by, and its ends extended down into uprights, the bar's 10 mm width, 50 mm tall, to mount a linkage on |
+| `MV1/linkage` | assembly: a four-bar linkage moving in y-z: a fixed plate in the x-z plane, two equal arms hinged to its top and bottom, and the wheel link hinged to their far ends, kept parallel |
+| `MV1/linkage/plate` | part: an I link: a straight 9.6 × 50 × 3 mm strip in the x-z plane, as wide as the middle knuckle of the hinge (about an x axis) at its top and bottom, flush with its flat back face, which mounts on an upright; the fixed side link (the wheel link extends it on the other side) |
+| `MV1/linkage/wheel_link` | part: the wheel-side I link: the plate's strip, extended 30 mm down below its bottom hinge, where the wheel will come |
+| `MV1/linkage/arm` | part: an H link: a 30 mm wide, 3 mm plate, 40 mm between the hinges at its ends, each two outer knuckles with a 10 × 12 mm slot cut in between them |
 | `MV1/linkage/pin` | part: a 2 × 30 mm hinge pin |
 
 ```

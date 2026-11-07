@@ -22,11 +22,10 @@ Assumptions where the description is silent:
   is turned half a turn so its leg points forwards; it stands on z = 0 like
   the bar, its top 3 mm below the longitudinal beam's bottom (the disc's
   thickness), so it swings clear under it;
-- each end is an upright, extended 40 mm down below the bar and widened to
-  30 mm along x, 10 mm thick along y, the end face flush with the bar's
-  end: the linkage's hinge width and its plate's height (50 mm overall),
-  so each end face is an x-z face as wide as the linkage, to mount its
-  plate on;
+- each end is an upright, extended 40 mm down below the bar, the bar's
+  width (10 mm) along x and 10 mm thick along y, the end face flush with
+  the bar's end: the linkage plate's height (50 mm overall), so each end
+  face is an x-z face to mount the linkage's 9.6 mm plate on;
 - lateral along y (+y is the left), centred on x = 0 and y = 0 (the
   vehicle's centreline), standing on z = 0 on its uprights; the bar and
   the leg are 40 mm up.
@@ -34,7 +33,7 @@ Assumptions where the description is silent:
 import cadquery as cq
 
 beam = load_part("../beam")  # the longitudinal beam this one supports
-linkage_plate = load_part("../../linkage/plate")  # the ends' size, to mount it on
+linkage_plate = load_part("../../linkage/plate")  # the ends' height, to mount it on
 
 # parameters, in mm
 length = 120.0  # lateral, along y; shorter than the longitudinal beam
@@ -46,7 +45,7 @@ pin_clearance = 0.2  # diametral, in the longitudinal beam's hole
 pin_diameter = beam.hole_diameter - pin_clearance
 pin_height = beam.disc_thickness - 2.0  # stops short of the hole's top
 leg_length = 40.0  # the T leg, along -x from the bar's side
-end_width = linkage_plate.hinge_width  # the uprights, along x: the linkage's width
+end_width = width  # the uprights, along x: the bar's width
 end_thickness = 10.0  # the uprights, along y, in from each end
 drop = linkage_plate.height - height  # the uprights below the bar
 

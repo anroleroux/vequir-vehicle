@@ -1,9 +1,11 @@
-"""Lateral beam
+"""Lateral steering beam
 
 A straight beam of the MV1 chassis, running in the lateral direction
 (sideways, along y), shorter than the longitudinal beam, with a disc on top
 and a pin sticking up from the disc's middle. The longitudinal beam's end
-disc sits on this disc, the pin in its hole.
+disc sits on this disc, the pin in its hole, so the beam turns about the
+pin to steer. A T leg runs from its middle in the longitudinal direction
+(along x), towards the middle of the longitudinal beam, to steer it by.
 
 Assumptions where the description is silent:
 - a solid bar of rectangular section, 120 mm long (y), 10 mm wide (x) and
@@ -13,6 +15,12 @@ Assumptions where the description is silent:
 - the pin is 0.2 mm smaller than the longitudinal beam's hole (3.2 mm in a
   3.4 mm hole) and 8 mm tall, shorter than the hole is deep, so it locates
   the disc without reaching its top;
+- the leg has the bar's 10 x 10 mm section and stands out 40 mm from the
+  bar's side, along -x: with the beam under the front of the longitudinal
+  beam it points rearwards, under the longitudinal beam, and the rear copy
+  is turned half a turn so its leg points forwards; it stands on z = 0 like
+  the bar, its top 3 mm below the longitudinal beam's bottom (the disc's
+  thickness), so it swings clear under it;
 - lateral along y (+y is the left), centred on x = 0 and y = 0 (the
   vehicle's centreline), standing on z = 0.
 """
@@ -29,19 +37,26 @@ disc_thickness = 3.0
 pin_clearance = 0.2  # diametral, in the longitudinal beam's hole
 pin_diameter = beam.hole_diameter - pin_clearance
 pin_height = beam.disc_thickness - 2.0  # stops short of the hole's top
+leg_length = 40.0  # the T leg, along -x from the bar's side
 
 top = height + disc_thickness  # the disc's top face: the longitudinal beam's seat
 
 bar = cq.Workplane("XY").rect(width, length).extrude(height)
 disc = cq.Workplane("XY", origin=(0, 0, height)).circle(disc_diameter / 2).extrude(disc_thickness)
 pin = cq.Workplane("XY", origin=(0, 0, top)).circle(pin_diameter / 2).extrude(pin_height)
-result = bar.union(disc).union(pin)
+leg = (
+    cq.Workplane("XY", origin=(-(width / 2 + leg_length / 2), 0, 0))
+    .rect(leg_length, width)
+    .extrude(height)
+)
+result = bar.union(leg).union(disc).union(pin)
 
 regions = {
     "seat": result.faces(cq.selectors.NearestToPointSelector((disc_diameter / 2 - 1, 0, top))),
     "pin": result.faces("%CYLINDER").faces(
         cq.selectors.NearestToPointSelector((0, 0, top + pin_height / 2))),
     "bottom": result.faces("<Z"),
+    "leg_end": result.faces("<X"),  # where the steering takes hold
 }
 
 if "show_object" in globals():  # CQ-editor

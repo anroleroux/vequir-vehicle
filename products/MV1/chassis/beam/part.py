@@ -49,7 +49,7 @@ regions = {
     "rear_hole": result.faces("%CYLINDER").faces(
         cq.selectors.NearestToPointSelector((-length / 2, 0, height / 2))),
     "top": result.faces(">Z"),
-    "bottom": result.faces("<Z"),  # its seat on the lateral beams' discs; the sliding plate's track
+    "bottom": result.faces("<Z"),  # its seat on the lateral beams' discs
 }
 
 if "show_object" in globals():  # CQ-editor

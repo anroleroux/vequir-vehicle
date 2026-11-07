@@ -8,7 +8,7 @@ a parallelogram, so the moving plate stays parallel to the fixed one.
 
 Assumptions where the description is silent:
 - 40 mm between its hinge axes (along y), 3 mm thick, as wide as the
-  linkage plate (30 mm);
+  hinges (30 mm);
 - its outer knuckles, 6 mm across like the plate's, run from 0.2 mm beyond
   the plate's middle knuckle (x = +-5 mm) to its edges; between them,
   around each axis, it is cut back to 3.3 mm from the axis so it turns
@@ -24,7 +24,7 @@ plate = load_part("../plate")  # the plates it is hinged to
 # parameters, in mm
 length = 40.0  # between the hinge axes, along y
 thickness = 3.0  # along z
-width = plate.width  # along x
+width = plate.hinge_width  # along x
 knuckle_radius = plate.knuckle_radius
 middle = plate.middle  # the outer knuckles start here, each side of x = 0
 cut_radius = plate.knuckle_radius + plate.turn_clearance  # around the plate's knuckles

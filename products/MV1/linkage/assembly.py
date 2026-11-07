@@ -31,10 +31,10 @@ for name, z in (("bottom_arm", plate.axes_z[0]), ("top_arm", plate.axes_z[1])):
     turn = cq.Location(cq.Vector(0, near_y, z), cq.Vector(1, 0, 0), swing)
     result.add(arm.result, name=name, color=cq.Color(0.80, 0.45, 0.20),
                loc=turn * cq.Location(cq.Vector(0, 0, -arm.axis_z)))
-# the pins lie along x (+z turned to +x), from the plates' -x edge
+# the pins lie along x (+z turned to +x), from the arms' -x edge
 for side, y, dz in (("fixed", near_y, 0.0), ("moving", far_y, rise)):
     for level, z in (("bottom", plate.axes_z[0] + dz), ("top", plate.axes_z[1] + dz)):
         result.add(pin.result, name=f"{side}_{level}_pin", color=cq.Color(0.70, 0.70, 0.72),
-                   loc=cq.Location(cq.Vector(-plate.width / 2, y, z), cq.Vector(0, 1, 0), 90))
+                   loc=cq.Location(cq.Vector(-plate.hinge_width / 2, y, z), cq.Vector(0, 1, 0), 90))
 
 regions = {}

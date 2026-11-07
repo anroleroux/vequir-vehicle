@@ -84,14 +84,17 @@ def test_the_chassis_seats_the_beam_on_the_steering_beams_legs_inwards(tmp_path)
 
 
 def test_the_linkage_plate_stands_in_x_z_with_a_hinge_top_and_bottom(tmp_path):
-    """30 x 50 mm, 3 mm thick along y; two outer knuckles about an x axis at
-    its top and bottom, a 2.2 mm hole through them, flush with the flat back
-    face (y = 0) it mounts by."""
+    """An I link: a straight 9.6 x 50 mm strip, 3 mm thick along y, only as
+    wide as the middle knuckle about an x axis at its top and bottom, with a
+    2.2 mm hole through it, flush with the flat back face (y = 0) it mounts
+    by."""
     summary = _summary(build_part(PRODUCTS / "MV1/linkage/plate/part.py", tmp_path / "out"))
     box = summary["bounding_box"]
-    assert box["size"] == pytest.approx([30.0, 6.0, 50.0])  # 3 mm plate, 6 mm knuckles
+    assert box["size"] == pytest.approx([9.6, 6.0, 50.0])  # 3 mm strip, 6 mm knuckles
     assert box["size"][1] == min(box["size"])  # thin along y: in the x-z plane
-    assert box["min"] == pytest.approx([-15.0, 0.0, 0.0])  # nothing behind the back face
+    assert box["min"] == pytest.approx([-4.8, 0.0, 0.0])  # nothing behind the back face
+    knuckles = 2 * (math.pi * 3.0 ** 2 / 2 - math.pi * 1.1 ** 2) * 9.6  # the half proud, less the hole
+    assert summary["volume_mm3"] == pytest.approx(9.6 * 3.0 * 50.0 + knuckles, abs=0.01)
     assert summary["n_solids"] == 1
     assert summary["regions"]["bottom_hinge"]["count"] == 1
     assert summary["regions"]["top_hinge"]["count"] == 1
@@ -135,8 +138,8 @@ def test_the_four_bar_linkage_moves_in_y_z_without_collisions(tmp_path, swing):
 
 def test_mv1_mounts_a_linkage_on_each_upright_of_the_steering_beams(tmp_path):
     """Four linkages, each fixed plate's back face flat on an upright's end
-    face (30 x 50 mm less the clearance around the middle knuckles),
-    reaching outwards along y. No interference."""
+    face (the 9.6 x 50 mm strip), reaching outwards along y. No
+    interference."""
     summary = _summary(build_part(PRODUCTS / "MV1/assembly.py", tmp_path / "out"))
     assert summary["interference"] == []
     names = [c["name"] for c in summary["components"]]
@@ -145,7 +148,7 @@ def test_mv1_mounts_a_linkage_on_each_upright_of_the_steering_beams(tmp_path):
     contacts = {c["b"]: c["area_mm2"] for c in summary["contacts"]}
     assert set(contacts) == set(names[1:])
     for area in contacts.values():
-        assert 1350.0 < area <= 30.0 * 50.0
+        assert area == pytest.approx(9.6 * 50.0)
     parts = {c["name"].split("/")[-1]: c for c in summary["components"]}
     for name, x, side in (("front_left_linkage", 100.0, 1), ("front_right_linkage", 100.0, -1),
                           ("rear_left_linkage", -100.0, 1), ("rear_right_linkage", -100.0, -1)):

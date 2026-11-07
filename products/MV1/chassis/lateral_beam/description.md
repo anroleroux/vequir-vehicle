@@ -6,3 +6,5 @@ are the steering beams.
 
 A middle T leg extends from each steering beam in the direction of the
 longitudinal beam, to steer by.
+
+The ends of the steering beams extend downward and are widened.

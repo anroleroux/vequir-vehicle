@@ -6,6 +6,7 @@ and a pin sticking up from the disc's middle. The longitudinal beam's end
 disc sits on this disc, the pin in its hole, so the beam turns about the
 pin to steer. A T leg runs from its middle in the longitudinal direction
 (along x), towards the middle of the longitudinal beam, to steer it by.
+Its ends extend downward and are widened, into uprights.
 
 Assumptions where the description is silent:
 - a solid bar of rectangular section, 120 mm long (y), 10 mm wide (x) and
@@ -21,12 +22,18 @@ Assumptions where the description is silent:
   is turned half a turn so its leg points forwards; it stands on z = 0 like
   the bar, its top 3 mm below the longitudinal beam's bottom (the disc's
   thickness), so it swings clear under it;
+- each end is an upright, extended 40 mm down below the bar and widened to
+  30 mm along x, 10 mm thick along y, the end face flush with the bar's
+  end: the linkage plate's width and height (50 mm overall), so each end
+  face is an x-z face the size of the linkage plate, to mount it on;
 - lateral along y (+y is the left), centred on x = 0 and y = 0 (the
-  vehicle's centreline), standing on z = 0.
+  vehicle's centreline), standing on z = 0 on its uprights; the bar and
+  the leg are 40 mm up.
 """
 import cadquery as cq
 
 beam = load_part("../beam")  # the longitudinal beam this one supports
+linkage_plate = load_part("../../linkage/plate")  # the ends' size, to mount it on
 
 # parameters, in mm
 length = 120.0  # lateral, along y; shorter than the longitudinal beam
@@ -38,25 +45,40 @@ pin_clearance = 0.2  # diametral, in the longitudinal beam's hole
 pin_diameter = beam.hole_diameter - pin_clearance
 pin_height = beam.disc_thickness - 2.0  # stops short of the hole's top
 leg_length = 40.0  # the T leg, along -x from the bar's side
+end_width = linkage_plate.width  # the uprights, along x
+end_thickness = 10.0  # the uprights, along y, in from each end
+drop = linkage_plate.height - height  # the uprights below the bar
 
-top = height + disc_thickness  # the disc's top face: the longitudinal beam's seat
+bar_z = drop  # the bar's bottom
+top = bar_z + height + disc_thickness  # the disc's top face: the longitudinal beam's seat
+end_y = [length / 2 - end_thickness / 2, -(length / 2 - end_thickness / 2)]  # left, right
 
-bar = cq.Workplane("XY").rect(width, length).extrude(height)
-disc = cq.Workplane("XY", origin=(0, 0, height)).circle(disc_diameter / 2).extrude(disc_thickness)
+bar = cq.Workplane("XY", origin=(0, 0, bar_z)).rect(width, length).extrude(height)
+disc = cq.Workplane("XY", origin=(0, 0, bar_z + height)).circle(disc_diameter / 2).extrude(
+    disc_thickness)
 pin = cq.Workplane("XY", origin=(0, 0, top)).circle(pin_diameter / 2).extrude(pin_height)
 leg = (
-    cq.Workplane("XY", origin=(-(width / 2 + leg_length / 2), 0, 0))
+    cq.Workplane("XY", origin=(-(width / 2 + leg_length / 2), 0, bar_z))
     .rect(leg_length, width)
     .extrude(height)
 )
-result = bar.union(leg).union(disc).union(pin)
+ends = (
+    cq.Workplane("XY")
+    .pushPoints([(0, y) for y in end_y])
+    .rect(end_width, end_thickness)
+    .extrude(drop + height)
+)
+result = bar.union(leg).union(ends).union(disc).union(pin)
 
 regions = {
     "seat": result.faces(cq.selectors.NearestToPointSelector((disc_diameter / 2 - 1, 0, top))),
     "pin": result.faces("%CYLINDER").faces(
         cq.selectors.NearestToPointSelector((0, 0, top + pin_height / 2))),
-    "bottom": result.faces("<Z"),
-    "leg_end": result.faces("<X"),  # where the steering takes hold
+    "feet": result.faces("<Z"),  # the uprights' bottoms
+    "leg_end": result.faces(cq.selectors.NearestToPointSelector(
+        (-(width / 2 + leg_length), 0, bar_z + height / 2))),  # where the steering takes hold
+    "left_end": result.faces(">Y"),  # x-z faces the linkage plate's size
+    "right_end": result.faces("<Y"),
 }
 
 if "show_object" in globals():  # CQ-editor

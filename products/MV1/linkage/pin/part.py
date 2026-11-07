@@ -1,7 +1,7 @@
 """Hinge pin
 
-A plain round pin through a hinge's knuckles: the linkage plate's two outer
-knuckles and the arm's middle one.
+A plain round pin through a hinge's knuckles: the arm's two outer knuckles
+and the linkage plate's middle one.
 
 Assumptions where the description is silent:
 - 2 mm in diameter, a running fit in the knuckles' 2.2 mm holes, as long

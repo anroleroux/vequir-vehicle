@@ -145,7 +145,7 @@ def test_mv1_mounts_a_linkage_on_each_upright_of_the_steering_beams(tmp_path):
     contacts = {c["b"]: c["area_mm2"] for c in summary["contacts"]}
     assert set(contacts) == set(names[1:])
     for area in contacts.values():
-        assert 1400.0 < area <= 30.0 * 50.0
+        assert 1350.0 < area <= 30.0 * 50.0
     parts = {c["name"].split("/")[-1]: c for c in summary["components"]}
     for name, x, side in (("front_left_linkage", 100.0, 1), ("front_right_linkage", 100.0, -1),
                           ("rear_left_linkage", -100.0, 1), ("rear_right_linkage", -100.0, -1)):

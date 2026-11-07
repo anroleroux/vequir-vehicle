@@ -27,7 +27,7 @@ def _summary(result):
 
 def test_the_catalogue_holds_the_mv1_chassis():
     assert sorted(e.designation for e in discover_all(PRODUCTS)) == [
-        "MV1/chassis", "MV1/chassis/beam", "MV1/chassis/lateral_beam",
+        "MV1", "MV1/chassis", "MV1/chassis/beam", "MV1/chassis/lateral_beam",
         "MV1/linkage", "MV1/linkage/arm", "MV1/linkage/pin", "MV1/linkage/plate"]
 
 
@@ -85,11 +85,13 @@ def test_the_chassis_seats_the_beam_on_the_steering_beams_legs_inwards(tmp_path)
 
 def test_the_linkage_plate_stands_in_x_z_with_a_hinge_top_and_bottom(tmp_path):
     """30 x 50 mm, 3 mm thick along y; two outer knuckles about an x axis at
-    its top and bottom, a 2.2 mm hole through them."""
+    its top and bottom, a 2.2 mm hole through them, flush with the flat back
+    face (y = 0) it mounts by."""
     summary = _summary(build_part(PRODUCTS / "MV1/linkage/plate/part.py", tmp_path / "out"))
     box = summary["bounding_box"]
     assert box["size"] == pytest.approx([30.0, 6.0, 50.0])  # 3 mm plate, 6 mm knuckles
     assert box["size"][1] == min(box["size"])  # thin along y: in the x-z plane
+    assert box["min"] == pytest.approx([-15.0, 0.0, 0.0])  # nothing behind the back face
     assert summary["n_solids"] == 1
     assert summary["regions"]["bottom_hinge"]["count"] == 1
     assert summary["regions"]["top_hinge"]["count"] == 1
@@ -128,4 +130,27 @@ def test_the_four_bar_linkage_moves_in_y_z_without_collisions(tmp_path, swing):
     assert moving["bounding_box_min"][2] == pytest.approx(fixed["bounding_box_min"][2] + rise, abs=1e-3)
     pin = parts["moving_bottom_pin"]
     centre = [(pin["bounding_box_min"][i] + pin["bounding_box_max"][i]) / 2 for i in (1, 2)]
-    assert centre == pytest.approx([1.5 + run, 3.0 + rise], abs=1e-3)
+    assert centre == pytest.approx([3.0 + run, 3.0 + rise], abs=1e-3)
+
+
+def test_mv1_mounts_a_linkage_on_each_upright_of_the_steering_beams(tmp_path):
+    """Four linkages, each fixed plate's back face flat on an upright's end
+    face (30 x 50 mm less the clearance around the middle knuckles),
+    reaching outwards along y. No interference."""
+    summary = _summary(build_part(PRODUCTS / "MV1/assembly.py", tmp_path / "out"))
+    assert summary["interference"] == []
+    names = [c["name"] for c in summary["components"]]
+    assert names == ["MV1/chassis", "MV1/front_left_linkage", "MV1/front_right_linkage",
+                     "MV1/rear_left_linkage", "MV1/rear_right_linkage"]
+    contacts = {c["b"]: c["area_mm2"] for c in summary["contacts"]}
+    assert set(contacts) == set(names[1:])
+    for area in contacts.values():
+        assert 1400.0 < area <= 30.0 * 50.0
+    parts = {c["name"].split("/")[-1]: c for c in summary["components"]}
+    for name, x, side in (("front_left_linkage", 100.0, 1), ("front_right_linkage", 100.0, -1),
+                          ("rear_left_linkage", -100.0, 1), ("rear_right_linkage", -100.0, -1)):
+        box_min, box_max = parts[name]["bounding_box_min"], parts[name]["bounding_box_max"]
+        assert [box_min[0], box_max[0]] == pytest.approx([x - 15.0, x + 15.0])
+        inner = box_min[1] if side > 0 else box_max[1]
+        assert inner == pytest.approx(side * 60.0)  # on the upright's end face
+        assert [box_min[2], box_max[2]] == pytest.approx([0.0, 50.0])

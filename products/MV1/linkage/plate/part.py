@@ -7,10 +7,14 @@ it.
 
 Assumptions where the description is silent:
 - 30 mm wide (x), 50 mm high (z) and 3 mm thick (y);
-- each hinge is a set of knuckles about an axis along x, on the plate's
-  mid-plane, 3 mm in from its top or bottom edge: the plate carries the two
-  outer knuckles (6 mm across, from x = +-5 mm to its edges), the arm the
-  middle one, with 0.2 mm between knuckles along x;
+- each hinge is a set of knuckles about an axis along x, a knuckle's
+  radius (3 mm) in front of the plate's back face and in from its top or
+  bottom edge, so the knuckles are flush with the back face and the top or
+  bottom edge, and stand 3 mm proud of the front face; the back face is
+  flat, to mount the plate on (a steering beam's upright);
+- the plate carries the two outer knuckles (6 mm across, from x = +-5 mm
+  to its edges), the arm the middle one, with 0.2 mm between knuckles
+  along x;
 - around the middle knuckle the plate is cut back to 3.3 mm from the axis,
   so the arm's knuckle turns clear of it;
 - a 2.2 mm hole along each axis, for a 2 mm pin;
@@ -28,7 +32,7 @@ knuckle_gap = 0.2  # between knuckles, along x
 turn_clearance = 0.3  # radial, around the other leaf's knuckles
 hole_diameter = 2.2  # along each hinge axis, for a 2 mm pin
 
-axis_y = thickness / 2  # the hinge axes, on the plate's mid-plane
+axis_y = knuckle_radius  # the hinge axes: the knuckles flush with the back face
 axes_z = [knuckle_radius, height - knuckle_radius]  # bottom, top
 
 

@@ -1,9 +1,8 @@
 """MV1 chassis
 
 The main beam (a flat plate) on two lateral steering beams, one under each
-end:
-each end disc seated on a steering beam's disc, the steering beam's pin in
-its hole, so the steering beam turns about it. Each steering beam's T leg
+end: each round end seated on a steering beam's disc, the steering beam's
+pin in its hole, so the steering beam turns about it. Each steering beam's T leg
 points inwards, under the main beam.
 """
 import cadquery as cq

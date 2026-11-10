@@ -10,7 +10,7 @@ Its ends extend downward and are widened, into uprights.
 
 Assumptions where the description is silent:
 - a solid bar of rectangular section, 120 mm long (y), 10 mm wide (x) and
-  10 mm high (z), the same section as the longitudinal beam;
+  10 mm high (z);
 - the disc is the longitudinal beam's disc diameter (20 mm) and 3 mm thick,
   centred on the beam's middle, on its top;
 - the pin is 0.2 mm smaller than the longitudinal beam's hole (3.2 mm in a
@@ -37,8 +37,8 @@ linkage_plate = load_part("../../linkage/plate")  # the ends' height, to mount i
 
 # parameters, in mm
 length = 120.0  # lateral, along y; shorter than the longitudinal beam
-width = beam.width  # longitudinal, along x
-height = beam.height  # vertical, along z
+width = 10.0  # longitudinal, along x
+height = 10.0  # vertical, along z
 disc_diameter = beam.disc_diameter  # matches the longitudinal beam's end disc
 disc_thickness = 3.0
 pin_clearance = 0.2  # diametral, in the longitudinal beam's hole

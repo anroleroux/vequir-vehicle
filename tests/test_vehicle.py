@@ -32,18 +32,21 @@ def test_the_catalogue_holds_the_mv1_chassis():
         "MV1/linkage/wheel_link"]
 
 
-def test_the_chassis_beam_runs_longitudinally_with_a_holed_disc_at_each_end(tmp_path):
-    """Longest along x, centred on the centreline, standing on z = 0; a 20 mm
-    disc on each end, its centre line in z, with a hole through it."""
+def test_the_main_beam_is_a_flat_plate_flaring_out_in_the_middle(tmp_path):
+    """A horizontal 6 mm plate along x, centred on the centreline, standing
+    on z = 0: 20 mm round ends with a 3.4 mm hole at the steering rotation
+    points (x = +-100), flaring out to 58.4 mm wide at the middle."""
     summary = _summary(build_part(PRODUCTS / "MV1/chassis/beam/part.py", tmp_path / "out"))
     box = summary["bounding_box"]
-    assert box["size"] == pytest.approx([220.0, 20.0, 10.0])  # 200 between disc centres
+    assert box["size"] == pytest.approx([220.0, 58.446, 6.0], abs=1e-3)
     assert box["size"][0] == max(box["size"])  # longitudinal
-    assert box["min"] == pytest.approx([-110.0, -10.0, 0.0])
+    assert box["size"][2] == min(box["size"])  # flat, horizontal
+    assert box["min"][0] == pytest.approx(-110.0)
+    assert box["min"][2] == pytest.approx(0.0)
     assert summary["n_solids"] == 1
-    assert summary["face_types"] == {"CYLINDER": 4, "PLANE": 4}  # disc rims, holes; a plain bar
     assert summary["regions"]["front_hole"]["count"] == 1
     assert summary["regions"]["rear_hole"]["count"] == 1
+    assert summary["regions"]["bottom"]["count"] == 1  # one flat seat
 
 
 def test_the_lateral_beam_runs_sideways_with_a_disc_pin_and_steering_leg(tmp_path):
@@ -53,13 +56,13 @@ def test_the_lateral_beam_runs_sideways_with_a_disc_pin_and_steering_leg(tmp_pat
     summary = _summary(build_part(PRODUCTS / "MV1/chassis/lateral_beam/part.py",
                                   tmp_path / "out"))
     box = summary["bounding_box"]
-    assert box["size"] == pytest.approx([55.0, 120.0, 61.0])  # leg to disc; 50 + 3 disc + 8 pin
+    assert box["size"] == pytest.approx([55.0, 120.0, 57.0])  # leg to disc; 50 + 3 disc + 4 pin
     assert box["size"][1] == max(box["size"])  # lateral
     assert box["min"] == pytest.approx([-45.0, -60.0, 0.0])
     assert summary["regions"]["feet"]["count"] == 2
     assert summary["face_types"]["CYLINDER"] == 2  # the disc's rim, the pin
     disc = math.pi * 10.0 ** 2 * 3.0
-    pin = math.pi * 1.6 ** 2 * 8.0
+    pin = math.pi * 1.6 ** 2 * 4.0  # 2 mm short of the 6 mm plate's hole
     uprights = 2 * (10 * 10 * 50 - 10 * 10 * 10)  # less where the bar already is
     assert summary["volume_mm3"] == pytest.approx(
         10 * 120 * 10 + 40 * 10 * 10 + uprights + disc + pin, abs=0.01)

@@ -24,7 +24,7 @@ Every part and assembly here is modelled in the vehicle's axes:
 | --- | --- |
 | `MV1` | product, assembled: the chassis with a linkage mounted on each upright of its steering beams, four in all |
 | `MV1/chassis` | assembly: the longitudinal beam carried on two lateral steering beams, its end discs seated on theirs, their pins in its holes, their T legs pointing inwards |
-| `MV1/chassis/beam` | part: a beam running longitudinally (along x), 200 mm between the 20 mm discs at its ends, each with a hole through its middle |
+| `MV1/chassis/beam` | part: the main beam, a horizontal 6 mm plate along x that flares out to 58 mm wide in the middle and comes together in 20 mm round ends at the steering rotation points, 200 mm apart, each with a hole for the steering beam's pin |
 | `MV1/chassis/lateral_beam` | part: a steering beam running laterally (along y), 120 mm, with a disc on top, a pin sticking up from its middle to turn about, a 40 mm T leg from its middle along x to steer by, and its ends extended down into uprights, the bar's 10 mm width, 50 mm tall, to mount a linkage on |
 | `MV1/linkage` | assembly: a four-bar linkage moving in y-z: a fixed plate in the x-z plane, two equal arms hinged to its top and bottom, and the wheel link hinged to their far ends, kept parallel |
 | `MV1/linkage/plate` | part: an I link: a straight 9.6 × 50 × 3 mm strip in the x-z plane, as wide as the middle knuckle of the hinge (about an x axis) at its top and bottom, flush with its flat back face, which mounts on an upright; the fixed side link (the wheel link extends it on the other side) |

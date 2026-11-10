@@ -16,6 +16,7 @@ plate = load_part("plate")
 arm = load_part("arm")
 pin = load_part("pin")
 wheel = load_part("wheel_link")
+wheel_pin = load_part("wheel_pin")
 
 swing = 0.0  # degrees, the arms about the fixed plate's hinges, up positive
 
@@ -36,10 +37,12 @@ for name, z in (("bottom_arm", plate.axes_z[0]), ("top_arm", plate.axes_z[1])):
     turn = cq.Location(cq.Vector(0, near_y, z), cq.Vector(1, 0, 0), swing)
     result.add(arm.result, name=name, color=cq.Color(0.80, 0.45, 0.20),
                loc=turn * cq.Location(cq.Vector(0, 0, -arm.axis_z)))
-# the pins lie along x (+z turned to +x), from the arms' -x edge
-for side, y, dz in (("fixed", near_y, 0.0), ("wheel", far_y, rise)):
+# the pins lie along x (+z turned to +x), from the arms' -x edge; the wheel
+# side's hinges are wider, with longer pins
+for side, part, half, y, dz in (("fixed", pin, plate.hinge_width / 2, near_y, 0.0),
+                                ("wheel", wheel_pin, wheel.hinge_width / 2, far_y, rise)):
     for level, z in (("bottom", plate.axes_z[0] + dz), ("top", plate.axes_z[1] + dz)):
-        result.add(pin.result, name=f"{side}_{level}_pin", color=cq.Color(0.70, 0.70, 0.72),
-                   loc=cq.Location(cq.Vector(-plate.hinge_width / 2, y, z), cq.Vector(0, 1, 0), 90))
+        result.add(part.result, name=f"{side}_{level}_pin", color=cq.Color(0.70, 0.70, 0.72),
+                   loc=cq.Location(cq.Vector(-half, y, z), cq.Vector(0, 1, 0), 90))
 
 regions = {}

@@ -29,7 +29,7 @@ def test_the_catalogue_holds_the_mv1_chassis():
     assert sorted(e.designation for e in discover_all(PRODUCTS)) == [
         "MV1", "MV1/chassis", "MV1/chassis/beam", "MV1/chassis/lateral_beam",
         "MV1/linkage", "MV1/linkage/arm", "MV1/linkage/pin", "MV1/linkage/plate",
-        "MV1/linkage/wheel_link"]
+        "MV1/linkage/wheel_link", "MV1/linkage/wheel_pin"]
 
 
 def test_the_main_beam_is_a_flat_plate_flaring_out_in_the_middle(tmp_path):
@@ -50,23 +50,24 @@ def test_the_main_beam_is_a_flat_plate_flaring_out_in_the_middle(tmp_path):
     assert summary["regions"]["bottom"]["count"] == 1  # one flat seat
 
 
-def test_the_lateral_beam_runs_sideways_with_a_disc_pin_and_steering_leg(tmp_path):
-    """A 120 mm bar along y with a disc and pin on top, a 40 mm T leg from
-    its middle along -x, the bar's section, and its ends extended down into
-    10 x 10 x 50 mm uprights, the bar's width (the linkage plate's height)."""
+def test_the_steering_beam_is_built_from_plates_with_curved_gussets(tmp_path):
+    """80 mm along y, 10 mm wide, 50 mm tall at its uprights: a 2 mm top
+    plate turning down into 2 mm end plates, 1.5 mm gussets along both side
+    edges; a 40 mm T leg along -x; a disc and a 3 mm pin on top."""
     summary = _summary(build_part(PRODUCTS / "MV1/chassis/lateral_beam/part.py",
                                   tmp_path / "out"))
     box = summary["bounding_box"]
-    assert box["size"] == pytest.approx([55.0, 120.0, 56.0])  # leg to disc; 50 + 3 disc + 3 pin
+    assert box["size"] == pytest.approx([55.0, 80.0, 56.0])  # leg to disc; 50 + 3 disc + 3 pin
     assert box["size"][1] == max(box["size"])  # lateral
-    assert box["min"] == pytest.approx([-45.0, -60.0, 0.0])
-    assert summary["regions"]["feet"]["count"] == 2
-    assert summary["face_types"]["CYLINDER"] == 2  # the disc's rim, the pin
-    disc = math.pi * 10.0 ** 2 * 3.0
-    pin = math.pi * 1.6 ** 2 * 3.0  # flush with the 3 mm plate's top
-    uprights = 2 * (10 * 10 * 50 - 10 * 10 * 10)  # less where the bar already is
-    assert summary["volume_mm3"] == pytest.approx(
-        10 * 120 * 10 + 40 * 10 * 10 + uprights + disc + pin, abs=0.01)
+    assert box["min"] == pytest.approx([-45.0, -40.0, 0.0])
+    assert summary["n_solids"] == 1
+    for region in ("seat", "pin", "leg_end", "left_end", "right_end"):
+        assert summary["regions"][region]["count"] == 1
+    # far lighter than a solid 10 x 10 mm bar of the same outline: it is plates
+    solid = 10 * 80 * 10 + 2 * 10 * 10 * 40 + 40 * 10 * 10
+    assert summary["volume_mm3"] < 0.75 * solid
+    # the gussets' curves: cylinder faces besides the disc's rim and the pin
+    assert summary["face_types"]["CYLINDER"] > 2
 
 
 def test_the_chassis_seats_the_beam_on_the_steering_beams_legs_inwards(tmp_path):
@@ -83,7 +84,7 @@ def test_the_chassis_seats_the_beam_on_the_steering_beams_legs_inwards(tmp_path)
     }, rel=1e-3)
     beam, front, rear = summary["components"]
     assert beam["bounding_box_min"][2] == pytest.approx(53.0)  # 40 uprights, 10 bar, 3 disc
-    assert [front["bounding_box_min"][0], front["bounding_box_max"][0]] == pytest.approx([55.0, 110.0])  # the disc; the uprights are 10 mm
+    assert [front["bounding_box_min"][0], front["bounding_box_max"][0]] == pytest.approx([55.0, 110.0])  # leg end to disc
     assert [rear["bounding_box_min"][0], rear["bounding_box_max"][0]] == pytest.approx([-110.0, -55.0])
     assert front["bounding_box_min"][2] == pytest.approx(0.0)  # standing on its uprights
 
@@ -130,10 +131,11 @@ def test_the_four_bar_linkage_moves_in_y_z_without_collisions(tmp_path, swing):
     turn = math.radians(swing)
     rise = 40.0 * math.sin(turn)
     run = 40.0 * math.cos(turn)
-    for i in (0, 1):  # x and y extents: the same strip, upright, moved in y-z
-        assert moving["bounding_box_max"][i] - moving["bounding_box_min"][i] == pytest.approx(
-            fixed["bounding_box_max"][i] - fixed["bounding_box_min"][i], abs=1e-3)
-    assert moving["bounding_box_min"][0] == pytest.approx(fixed["bounding_box_min"][0], abs=1e-3)
+    # upright, moved only in y-z: centred on x = 0, 3 mm thick plus its knuckles
+    assert [moving["bounding_box_min"][0], moving["bounding_box_max"][0]] == pytest.approx(
+        [-9.8, 9.8], abs=1e-3)
+    assert moving["bounding_box_max"][1] - moving["bounding_box_min"][1] == pytest.approx(
+        6.0, abs=1e-3)
     # the summary rounds to 4 decimals; the wheel link reaches 30 mm lower
     assert moving["bounding_box_min"][2] == pytest.approx(
         fixed["bounding_box_min"][2] + rise - 30.0, abs=1e-3)
@@ -160,20 +162,21 @@ def test_mv1_mounts_a_linkage_on_each_upright_of_the_steering_beams(tmp_path):
     for name, x, side in (("front_left_linkage", 100.0, 1), ("front_right_linkage", 100.0, -1),
                           ("rear_left_linkage", -100.0, 1), ("rear_right_linkage", -100.0, -1)):
         box_min, box_max = parts[name]["bounding_box_min"], parts[name]["bounding_box_max"]
-        assert [box_min[0], box_max[0]] == pytest.approx([x - 15.0, x + 15.0])
+        assert [box_min[0], box_max[0]] == pytest.approx([x - 20.0, x + 20.0])  # the arms' wheel ends
         inner = box_min[1] if side > 0 else box_max[1]
-        assert inner == pytest.approx(side * 60.0)  # on the upright's end face
+        assert inner == pytest.approx(side * 40.0)  # on the upright's end face
         assert [box_min[2], box_max[2]] == pytest.approx([-30.0, 50.0])  # the wheel link lower
 
 
-def test_the_arm_is_an_h_and_the_wheel_link_reaches_down_for_the_wheel(tmp_path):
-    """The arm's slots, 10 mm wide and 12 mm in from each hinge axis, between
-    the outer knuckles; the wheel link is the plate's strip, 30 mm longer
-    at the bottom."""
+def test_the_arm_is_an_h_wider_at_the_wheel_and_the_wheel_link_reaches_down(tmp_path):
+    """The arm: 30 mm wide at the chassis hinge, 40 mm at the wheel hinge, a
+    deeper slot at the wheel end; the wheel link: a 19.6 mm strip for the
+    wheel end's wider gap, 30 mm longer at the bottom; the wheel pins 40 mm."""
     arm = _summary(build_part(PRODUCTS / "MV1/linkage/arm/part.py", tmp_path / "arm"))
-    assert arm["bounding_box"]["size"] == pytest.approx([30.0, 46.0, 6.0])
-    plate = _summary(build_part(PRODUCTS / "MV1/linkage/plate/part.py", tmp_path / "plate"))
+    assert arm["bounding_box"]["size"] == pytest.approx([40.0, 46.0, 6.0])
+    assert arm["n_solids"] == 1
     wheel = _summary(build_part(PRODUCTS / "MV1/linkage/wheel_link/part.py", tmp_path / "wheel"))
-    assert wheel["bounding_box"]["size"] == pytest.approx([9.6, 6.0, 80.0])
-    assert wheel["volume_mm3"] == pytest.approx(plate["volume_mm3"] + 9.6 * 3.0 * 30.0, abs=0.01)
+    assert wheel["bounding_box"]["size"] == pytest.approx([19.6, 6.0, 80.0])
     assert wheel["regions"]["wheel_end"]["count"] == 1
+    pin = _summary(build_part(PRODUCTS / "MV1/linkage/wheel_pin/part.py", tmp_path / "pin"))
+    assert pin["bounding_box"]["size"] == pytest.approx([2.0, 2.0, 40.0])

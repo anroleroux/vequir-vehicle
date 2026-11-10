@@ -13,9 +13,9 @@ Assumptions where the description is silent:
   10 mm high (z);
 - the disc is the longitudinal beam's disc diameter (20 mm) and 3 mm thick,
   centred on the beam's middle, on its top;
-- the pin is 0.2 mm smaller than the longitudinal beam's hole (3.2 mm in a
-  3.4 mm hole) and 8 mm tall, shorter than the hole is deep, so it locates
-  the disc without reaching its top;
+- the pin is 0.2 mm smaller than the main beam's hole (3.2 mm in a
+  3.4 mm hole) and as tall as the main beam plate is thick (3 mm), so it
+  locates the plate through its whole hole and ends flush with its top;
 - the leg has the bar's 10 x 10 mm section and stands out 40 mm from the
   bar's side, along -x: with the beam under the front of the longitudinal
   beam it points rearwards, under the longitudinal beam, and the rear copy
@@ -43,7 +43,7 @@ disc_diameter = beam.disc_diameter  # matches the longitudinal beam's end disc
 disc_thickness = 3.0
 pin_clearance = 0.2  # diametral, in the longitudinal beam's hole
 pin_diameter = beam.hole_diameter - pin_clearance
-pin_height = beam.disc_thickness - 2.0  # stops short of the hole's top
+pin_height = beam.disc_thickness  # flush with the main beam's top
 leg_length = 40.0  # the T leg, along -x from the bar's side
 end_width = width  # the uprights, along x: the bar's width
 end_thickness = 10.0  # the uprights, along y, in from each end

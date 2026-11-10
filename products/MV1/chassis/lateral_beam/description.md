@@ -11,3 +11,6 @@ The steering beam is shorter laterally (shorter again since), and built from pla
 beams: a plate at the top and at the outer sides (the uprights' outer
 faces), with curved gussets on each side edge that run along the entire
 beam and its extensions.
+
+Each upright carries the upper joint of a shock absorber, which runs down
+through the linkage's bottom arm to a joint on the wheel link.

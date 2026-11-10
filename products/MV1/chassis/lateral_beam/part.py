@@ -6,7 +6,9 @@ along the beam that turns down at each end into an outer end plate, the
 upright a linkage mounts on, with a curved gusset along each side edge
 that runs the entire beam and down both uprights. A disc on top, with a pin
 sticking up from its middle, carries the main beam's round end, its pin in
-the end's hole, so the beam turns about the pin to steer. A T leg, built
+the end's hole, so the beam turns about the pin to steer. Each upright
+carries a tab, the upper joint of a shock absorber that runs down through
+the linkage's bottom arm to its wheel link. A T leg, built
 the same way, runs from its middle in the longitudinal direction (along x),
 towards the middle of the chassis, to steer it by.
 
@@ -30,6 +32,10 @@ Assumptions where the description is silent:
 - the pin is 0.2 mm smaller than the main beam's hole (3.2 mm in a
   3.4 mm hole) and as tall as the main beam plate is thick (3 mm), so it
   locates the plate through its whole hole and ends flush with its top;
+- each shock tab is 3 mm thick (x), centred on the upright, standing out
+  from the end plate's outer face through the linkage plate's window to a
+  rounded end (4 mm radius) about a 2.2 mm hole, 10 mm out at z = 36 mm
+  (the linkage plate's shock_mount_y and shock_mount_z);
 - lateral along y (+y is the left), centred on x = 0 and y = 0 (the
   vehicle's centreline), standing on z = 0 on its uprights.
 """
@@ -91,6 +97,25 @@ for y0 in (width / 2 - gusset_thickness, -width / 2):
 result = result.union(_box(-leg_end, -leg_end + plate_thickness, -width / 2, width / 2,
                            height - gusset_depth, height))
 
+# a shock tab on each upright, out through the linkage plate's window
+eye = linkage_plate.shock_eye_radius
+for side in (1, -1):
+    face = side * length / 2  # the end plate's outer face
+    eye_y = face + side * linkage_plate.shock_mount_y
+    inner = face - side * plate_thickness
+    tab = (
+        cq.Workplane("YZ", origin=(-linkage_plate.shock_tab_thickness / 2, 0, 0))
+        .center(min(inner, eye_y) + abs(eye_y - inner) / 2, linkage_plate.shock_mount_z)
+        .rect(abs(eye_y - inner), 2 * eye)
+        .extrude(linkage_plate.shock_tab_thickness)
+        .union(cq.Workplane("YZ", origin=(-linkage_plate.shock_tab_thickness / 2, 0, 0))
+               .center(eye_y, linkage_plate.shock_mount_z).circle(eye)
+               .extrude(linkage_plate.shock_tab_thickness))
+    )
+    hole = (cq.Workplane("YZ", origin=(-width, 0, 0)).center(eye_y, linkage_plate.shock_mount_z)
+            .circle(linkage_plate.hole_diameter / 2).extrude(2 * width))
+    result = result.union(tab).cut(hole)
+
 # the disc and the pin the main beam turns on
 disc = cq.Workplane("XY", origin=(0, 0, height)).circle(disc_diameter / 2).extrude(
     disc_thickness)
@@ -103,8 +128,14 @@ regions = {
         cq.selectors.NearestToPointSelector((0, 0, top + pin_height / 2))),
     "feet": result.faces("<Z"),  # the uprights' bottoms
     "leg_end": result.faces("<X"),  # where the steering takes hold
-    "left_end": result.faces(">Y"),  # x-z faces to mount the linkage on
-    "right_end": result.faces("<Y"),
+    "left_end": result.faces(cq.selectors.NearestToPointSelector(
+        (width / 2 - 1, length / 2, 10))),  # x-z faces to mount the linkage on
+    "right_end": result.faces(cq.selectors.NearestToPointSelector(
+        (width / 2 - 1, -length / 2, 10))),
+    "left_shock_tab": result.faces("%CYLINDER").faces(cq.selectors.NearestToPointSelector(
+        (0, length / 2 + linkage_plate.shock_mount_y, linkage_plate.shock_mount_z + 1))),
+    "right_shock_tab": result.faces("%CYLINDER").faces(cq.selectors.NearestToPointSelector(
+        (0, -length / 2 - linkage_plate.shock_mount_y, linkage_plate.shock_mount_z + 1))),
 }
 
 if "show_object" in globals():  # CQ-editor

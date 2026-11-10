@@ -5,8 +5,13 @@ plane, two arms hinged to its top and bottom, and the wheel link (the
 plate, extended down for the wheel) hinged to the arms' far ends, turned
 half a turn to face the fixed one. The arms are
 equal, so the linkage is a parallelogram: the wheel link swings in y-z and
-stays parallel to the fixed plate. Shown with the arms level (swing = 0);
-a swing turns the arms about the fixed plate's hinges, up for positive.
+stays parallel to the fixed plate. A shock absorber runs from the
+steering beam's tab, out through the fixed plate's window between the arms,
+down through the bottom arm's wheel-end opening to the tab on the wheel
+link below the bottom arm: its body at the bottom, its rod at the top,
+sliding in it as the linkage moves. Shown with the arms level (swing = 0);
+a swing turns the arms about the fixed plate's hinges, up for positive; the
+shock's travel allows +-15 degrees.
 """
 import math
 
@@ -17,6 +22,9 @@ arm = load_part("arm")
 pin = load_part("pin")
 wheel = load_part("wheel_link")
 wheel_pin = load_part("wheel_pin")
+shock_body = load_part("shock_body")
+shock_rod = load_part("shock_rod")
+shock_pin = load_part("shock_pin")
 
 swing = 0.0  # degrees, the arms about the fixed plate's hinges, up positive
 
@@ -44,5 +52,23 @@ for side, part, half, y, dz in (("fixed", pin, plate.hinge_width / 2, near_y, 0.
     for level, z in (("bottom", plate.axes_z[0] + dz), ("top", plate.axes_z[1] + dz)):
         result.add(part.result, name=f"{side}_{level}_pin", color=cq.Color(0.70, 0.70, 0.72),
                    loc=cq.Location(cq.Vector(-half, y, z), cq.Vector(0, 1, 0), 90))
+
+# the shock absorber, between its joints, in this frame (the fixed plate's
+# back face on y = 0): the steering beam's tab and the wheel link's
+upper = cq.Vector(0, plate.shock_mount_y, plate.shock_mount_z)
+lower = cq.Vector(0, far_y + wheel.axis_y - wheel.shock_joint_y,
+                  wheel.shock_joint_z + rise - drop)
+span = upper - lower
+shock_length = span.Length  # between the joints' axes
+up = math.degrees(math.atan2(-span.y, span.z))  # turns +z towards the upper joint
+down = math.degrees(math.atan2(span.y, -span.z))  # turns +z towards the lower joint
+result.add(shock_body.result, name="shock_body", color=cq.Color(0.85, 0.20, 0.15),
+           loc=cq.Location(lower, cq.Vector(1, 0, 0), up))
+result.add(shock_rod.result, name="shock_rod", color=cq.Color(0.80, 0.80, 0.82),
+           loc=cq.Location(upper, cq.Vector(1, 0, 0), down))
+for name, at in (("upper_shock_pin", upper), ("lower_shock_pin", lower)):
+    result.add(shock_pin.result, name=name, color=cq.Color(0.70, 0.70, 0.72),
+               loc=cq.Location(at - cq.Vector(shock_pin.length / 2, 0, 0),
+                               cq.Vector(0, 1, 0), 90))
 
 regions = {}

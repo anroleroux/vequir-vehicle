@@ -19,6 +19,11 @@ Assumptions where the description is silent:
   stands 3 mm proud of the front face; the back face is flat, to mount the
   plate on (a steering beam's upright);
 - a 2.2 mm hole along each axis, for a 2 mm pin;
+- the shock absorber's upper joint is a tab on the steering beam's upright
+  behind it, 3 mm thick (x), standing 10 mm out from the plate's back face
+  at z = 36 mm, between the arms; it passes through a window in the strip,
+  0.2 mm larger all round than the tab (3.4 x 8.4 mm), which leaves 3.1 mm
+  of strip either side;
 - the plate stands on z = 0, centred on x = 0, its back face on y = 0.
 """
 import cadquery as cq
@@ -34,6 +39,12 @@ knuckle_half = middle - knuckle_gap  # the plate's middle knuckle, each side of 
 turn_clearance = 0.3  # radial, around the other leaf's knuckles
 hole_diameter = 2.2  # along each hinge axis, for a 2 mm pin
 
+shock_mount_y = 10.0  # the shock's upper joint, out from the back face
+shock_mount_z = 36.0  # the shock's upper joint, between the arms
+shock_tab_thickness = 3.0  # the steering beam's tab, along x
+shock_eye_radius = 4.0  # around the joints' pins
+tab_clearance = 0.2  # around the tab, in the window
+
 width = 2 * knuckle_half  # the strip, along x: straight down from knuckle to knuckle
 axis_y = knuckle_radius  # the hinge axes: the knuckles flush with the back face
 axes_z = [knuckle_radius, height - knuckle_radius]  # bottom, top
@@ -48,6 +59,10 @@ result = cq.Workplane("XY").box(width, thickness, height, centered=(True, False,
 for z in axes_z:
     result = result.union(_along_x(-knuckle_half, knuckle_half, axis_y, z, knuckle_radius))
     result = result.cut(_along_x(-width, width, axis_y, z, hole_diameter / 2))
+window = cq.Workplane("XZ").center(0, shock_mount_z).rect(
+    shock_tab_thickness + 2 * tab_clearance,
+    2 * (shock_eye_radius + tab_clearance)).extrude(-thickness * 3).translate((0, -thickness, 0))
+result = result.cut(window)
 
 regions = {
     "bottom_hinge": result.faces(cq.selectors.NearestToPointSelector(
@@ -56,6 +71,9 @@ regions = {
         (0, axis_y, axes_z[1] + hole_diameter / 2))),
     "front": result.faces(">Y"),
     "back": result.faces("<Y"),  # flat: mounts on an upright
+    "shock_window": result.faces(cq.selectors.BoxSelector(
+        (-shock_tab_thickness, -1, shock_mount_z - shock_eye_radius - 1),
+        (shock_tab_thickness, thickness + 1, shock_mount_z + shock_eye_radius + 1))),
 }
 
 if "show_object" in globals():  # CQ-editor

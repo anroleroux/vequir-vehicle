@@ -29,6 +29,7 @@ def test_the_catalogue_holds_the_mv1_chassis():
     assert sorted(e.designation for e in discover_all(PRODUCTS)) == [
         "MV1", "MV1/chassis", "MV1/chassis/beam", "MV1/chassis/lateral_beam",
         "MV1/linkage", "MV1/linkage/arm", "MV1/linkage/pin", "MV1/linkage/plate",
+        "MV1/linkage/shock_body", "MV1/linkage/shock_pin", "MV1/linkage/shock_rod",
         "MV1/linkage/wheel_link", "MV1/linkage/wheel_pin"]
 
 
@@ -57,11 +58,13 @@ def test_the_steering_beam_is_built_from_plates_with_curved_gussets(tmp_path):
     summary = _summary(build_part(PRODUCTS / "MV1/chassis/lateral_beam/part.py",
                                   tmp_path / "out"))
     box = summary["bounding_box"]
-    assert box["size"] == pytest.approx([55.0, 60.0, 56.0])  # leg to disc; 50 + 3 disc + 3 pin
+    # leg to disc; the shock tabs 14 mm past each end; 50 + 3 disc + 3 pin
+    assert box["size"] == pytest.approx([55.0, 88.0, 56.0])
     assert box["size"][1] == max(box["size"])  # lateral
-    assert box["min"] == pytest.approx([-45.0, -30.0, 0.0])
+    assert box["min"] == pytest.approx([-45.0, -44.0, 0.0])
     assert summary["n_solids"] == 1
-    for region in ("seat", "pin", "leg_end", "left_end", "right_end"):
+    for region in ("seat", "pin", "leg_end", "left_end", "right_end", "left_shock_tab",
+                   "right_shock_tab"):
         assert summary["regions"][region]["count"] == 1
     # far lighter than a solid 10 x 10 mm bar of the same outline: it is plates
     solid = 10 * 60 * 10 + 2 * 10 * 10 * 40 + 40 * 10 * 10
@@ -100,7 +103,8 @@ def test_the_linkage_plate_stands_in_x_z_with_a_hinge_top_and_bottom(tmp_path):
     assert box["size"][1] == min(box["size"])  # thin along y: in the x-z plane
     assert box["min"] == pytest.approx([-4.8, 0.0, 0.0])  # nothing behind the back face
     knuckles = 2 * (math.pi * 3.0 ** 2 / 2 - math.pi * 1.1 ** 2) * 9.6  # the half proud, less the hole
-    assert summary["volume_mm3"] == pytest.approx(9.6 * 3.0 * 50.0 + knuckles, abs=0.01)
+    window = 3.4 * 8.4 * 3.0  # for the steering beam's shock tab
+    assert summary["volume_mm3"] == pytest.approx(9.6 * 3.0 * 50.0 + knuckles - window, abs=0.01)
     assert summary["n_solids"] == 1
     assert summary["regions"]["bottom_hinge"]["count"] == 1
     assert summary["regions"]["top_hinge"]["count"] == 1
@@ -116,17 +120,19 @@ def _linkage(tmp_path, swing):
     return _summary(build_part(script, root / "out"))
 
 
-@pytest.mark.parametrize("swing", [0.0, 25.0, -25.0])
+@pytest.mark.parametrize("swing", [0.0, 15.0, -15.0])
 def test_the_four_bar_linkage_moves_in_y_z_without_collisions(tmp_path, swing):
-    """Fixed plate, two equal arms, wheel link, four pins: no interference
-    level or swung 25 degrees either way, the wheel link kept upright and
-    moved only in y-z, the pins on the arms' far hinges."""
+    """Fixed plate, two equal arms, wheel link, four pins and the shock
+    absorber: no interference level or swung 15 degrees either way (the
+    shock's travel), the wheel link kept upright and moved only in y-z, the
+    pins on the arms' far hinges, the shock's ends on its joints."""
     summary = _linkage(tmp_path, swing)
     assert summary["interference"] == []
     parts = {c["name"].split("/")[-1]: c for c in summary["components"]}
     assert set(parts) == {"fixed_plate", "wheel_link", "bottom_arm", "top_arm",
                           "fixed_bottom_pin", "fixed_top_pin", "wheel_bottom_pin",
-                          "wheel_top_pin"}
+                          "wheel_top_pin", "shock_body", "shock_rod", "upper_shock_pin",
+                          "lower_shock_pin"}
     fixed, moving = parts["fixed_plate"], parts["wheel_link"]
     turn = math.radians(swing)
     rise = 55.0 * math.sin(turn)  # the arms' 55 mm
@@ -135,7 +141,7 @@ def test_the_four_bar_linkage_moves_in_y_z_without_collisions(tmp_path, swing):
     assert [moving["bounding_box_min"][0], moving["bounding_box_max"][0]] == pytest.approx(
         [-9.8, 9.8], abs=1e-3)
     assert moving["bounding_box_max"][1] - moving["bounding_box_min"][1] == pytest.approx(
-        6.0, abs=1e-3)
+        12.0, abs=1e-3)  # with the shock tab
     # the summary rounds to 4 decimals; the wheel link reaches 30 mm lower
     assert moving["bounding_box_min"][2] == pytest.approx(
         fixed["bounding_box_min"][2] + rise - 30.0, abs=1e-3)
@@ -143,12 +149,20 @@ def test_the_four_bar_linkage_moves_in_y_z_without_collisions(tmp_path, swing):
     pin = parts["wheel_bottom_pin"]
     centre = [(pin["bounding_box_min"][i] + pin["bounding_box_max"][i]) / 2 for i in (1, 2)]
     assert centre == pytest.approx([3.0 + run, 3.0 + rise], abs=1e-3)
+    # the shock's ends: the steering beam's tab (10 mm out, 36 mm up), the
+    # wheel link's tab (5 mm in from the wheel hinge axis, 18 mm below the arm)
+    for name, at in (("upper_shock_pin", [10.0, 36.0]),
+                     ("lower_shock_pin", [3.0 + run - 5.0, -18.0 + rise])):
+        pin = parts[name]
+        centre = [(pin["bounding_box_min"][i] + pin["bounding_box_max"][i]) / 2 for i in (1, 2)]
+        assert centre == pytest.approx(at, abs=1e-3)
 
 
 def test_mv1_mounts_a_linkage_on_each_upright_of_the_steering_beams(tmp_path):
     """Four linkages, each fixed plate's back face flat on an upright's end
-    face (the 9.6 x 50 mm strip), reaching outwards along y. No
-    interference."""
+    face (the 9.6 x 50 mm strip less its 3.4 x 8.4 mm window), reaching
+    outwards along y; each upright's shock tab through the window, in the
+    shock's upper fork. No interference."""
     summary = _summary(build_part(PRODUCTS / "MV1/assembly.py", tmp_path / "out"))
     assert summary["interference"] == []
     names = [c["name"] for c in summary["components"]]
@@ -157,7 +171,7 @@ def test_mv1_mounts_a_linkage_on_each_upright_of_the_steering_beams(tmp_path):
     contacts = {c["b"]: c["area_mm2"] for c in summary["contacts"]}
     assert set(contacts) == set(names[1:])
     for area in contacts.values():
-        assert area == pytest.approx(9.6 * 50.0)
+        assert area == pytest.approx(9.6 * 50.0 - 3.4 * 8.4)
     parts = {c["name"].split("/")[-1]: c for c in summary["components"]}
     for name, x, side in (("front_left_linkage", 100.0, 1), ("front_right_linkage", 100.0, -1),
                           ("rear_left_linkage", -100.0, 1), ("rear_right_linkage", -100.0, -1)):
@@ -177,7 +191,17 @@ def test_the_arm_is_an_h_wider_at_the_wheel_and_the_wheel_link_reaches_down(tmp_
     assert arm["bounding_box"]["size"] == pytest.approx([40.0, 61.0, 6.0])
     assert arm["n_solids"] == 1
     wheel = _summary(build_part(PRODUCTS / "MV1/linkage/wheel_link/part.py", tmp_path / "wheel"))
-    assert wheel["bounding_box"]["size"] == pytest.approx([19.6, 6.0, 80.0])
+    assert wheel["bounding_box"]["size"] == pytest.approx([19.6, 12.0, 80.0])  # with its shock tab
     assert wheel["regions"]["wheel_end"]["count"] == 1
+    assert wheel["regions"]["shock_tab"]["count"] == 1
     pin = _summary(build_part(PRODUCTS / "MV1/linkage/wheel_pin/part.py", tmp_path / "pin"))
     assert pin["bounding_box"]["size"] == pytest.approx([2.0, 2.0, 40.0])
+
+
+@pytest.mark.parametrize("swing, collides", [(15.0, False), (25.0, True)])
+def test_the_shock_travels_15_degrees_and_bottoms_out_beyond(tmp_path, swing, collides):
+    """Its rod slides in the body between 57 and 80 mm between the joints;
+    past +15 degrees the rod's end runs into the body's floor."""
+    summary = _linkage(tmp_path, swing)
+    pairs = {(c["a"].split("/")[-1], c["b"].split("/")[-1]) for c in summary["interference"]}
+    assert pairs == ({("shock_body", "shock_rod")} if collides else set())

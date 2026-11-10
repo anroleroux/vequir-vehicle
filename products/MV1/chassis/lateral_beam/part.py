@@ -11,7 +11,7 @@ the same way, runs from its middle in the longitudinal direction (along x),
 towards the middle of the chassis, to steer it by.
 
 Assumptions where the description is silent:
-- 80 mm long (y) and 10 mm wide (x), 50 mm tall at its ends (the linkage
+- 60 mm long (y) and 10 mm wide (x), 50 mm tall at its ends (the linkage
   plate's height), so each end plate's outer face is an x-z face to mount
   the linkage's 9.6 mm plate on;
 - the top plate and the end plates are 2 mm thick;
@@ -39,7 +39,7 @@ beam = load_part("../beam")  # the main beam this one carries
 linkage_plate = load_part("../../linkage/plate")  # the uprights' height, to mount it on
 
 # parameters, in mm
-length = 80.0  # lateral, along y
+length = 60.0  # lateral, along y
 width = 10.0  # longitudinal, along x
 height = linkage_plate.height  # to the top plate's top, along z
 plate_thickness = 2.0  # the top plate and the end plates

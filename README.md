@@ -25,11 +25,11 @@ Every part and assembly here is modelled in the vehicle's axes:
 | `MV1` | product, assembled: the chassis with a linkage mounted on each upright of its steering beams, four in all |
 | `MV1/chassis` | assembly: the longitudinal beam carried on two lateral steering beams, its end discs seated on theirs, their pins in its holes, their T legs pointing inwards |
 | `MV1/chassis/beam` | part: the main beam, a thin (3 mm) horizontal plate along x: a straight section 100 mm wide and 80 mm long in the middle, tapering sharply in to 20 mm round ends at the steering rotation points, 200 mm apart, each with a hole for the steering beam's pin |
-| `MV1/chassis/lateral_beam` | part: a steering beam running laterally (along y), 80 mm, built from plates: a top plate turning down into the end plates of its 50 mm uprights (where the linkages mount), curved gussets along both side edges, the full beam and uprights; a disc and pin on top to turn about; a 40 mm T leg along x to steer by |
+| `MV1/chassis/lateral_beam` | part: a steering beam running laterally (along y), 60 mm, built from plates: a top plate turning down into the end plates of its 50 mm uprights (where the linkages mount), curved gussets along both side edges, the full beam and uprights; a disc and pin on top to turn about; a 40 mm T leg along x to steer by |
 | `MV1/linkage` | assembly: a four-bar linkage moving in y-z: a fixed plate in the x-z plane, two equal arms hinged to its top and bottom, and the wheel link hinged to their far ends, kept parallel |
 | `MV1/linkage/plate` | part: an I link: a straight 9.6 × 50 × 3 mm strip in the x-z plane, as wide as the middle knuckle of the hinge (about an x axis) at its top and bottom, flush with its flat back face, which mounts on an upright; the fixed side link (the wheel link extends it on the other side) |
 | `MV1/linkage/wheel_link` | part: the wheel-side I link: a 19.6 mm strip for the wider wheel-side hinges, extended 30 mm down below its bottom hinge, where the wheel will come |
-| `MV1/linkage/arm` | part: an H link: a 3 mm plate, 40 mm between its hinges, its legs angled out from 30 mm wide at the chassis hinge to 40 mm at the wheel hinge, with a deeper slot at the wheel end for a shock absorber to pass and filleted crossbar corners |
+| `MV1/linkage/arm` | part: an H link: a 3 mm plate, 55 mm between its hinges, its legs angled out from 30 mm wide at the chassis hinge to 40 mm at the wheel hinge; the wheel-end slot runs 35 mm in and is cut 3 mm back into the legs, room for a shock absorber or suspension to pass; filleted crossbar corners |
 | `MV1/linkage/pin` | part: a 2 × 30 mm hinge pin |
 | `MV1/linkage/wheel_pin` | part: a 2 × 40 mm hinge pin for the wider wheel-side hinges |
 

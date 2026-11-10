@@ -5,12 +5,12 @@ wheel link: a tube, closed at its bottom end, which is a fork straddling
 the wheel link's shock tab on a 2 mm pin. The shock rod slides in it.
 
 Assumptions where the description is silent:
-- the tube is 10 mm across with a 4.4 mm bore for the 4 mm rod, 38 mm
+- the tube is 10 mm across with a 4.4 mm bore for the 4 mm rod, 46 mm
   long, starting 5 mm from the joint's axis, closed for its first 2 mm;
 - the fork's two cheeks are 2 mm thick, either side of the 3 mm tab with
   0.2 mm clearance (3.4 mm between them, 7.4 mm overall), each rounded
   4 mm about the joint's axis, with a 2.2 mm hole;
-- the travel it allows: 57 to 80 mm between the joints' axes, the rod's
+- the travel it allows: 67 to 95 mm between the joints' axes, the rod's
   end at least 5 mm off the bore's bottom and 8 mm inside the tube;
 - modelled with the joint's axis along x through the origin, the tube
   along +z (the assembly turns it towards the upper joint).
@@ -22,7 +22,7 @@ plate = load_part("../plate")  # the joints' tab and eye
 # parameters, in mm
 tube_diameter = 10.0
 bore_diameter = 4.4  # for the 4 mm rod
-tube_length = 38.0
+tube_length = 46.0
 tube_start = 5.0  # from the joint's axis
 tube_floor = 2.0  # closed at its bottom
 cheek_thickness = 2.0

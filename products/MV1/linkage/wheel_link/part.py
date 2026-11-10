@@ -20,7 +20,7 @@ Assumptions where the description is silent:
   yet: its axle and mounting come with the wheel;
 - the shock tab is 3 mm thick (x), centred, standing out from the front
   face (the inner face, towards the chassis) to a rounded end (4 mm
-  radius) about a 2.2 mm hole, 8 mm from the back face and 12 mm up from
+  radius) about a 2.2 mm hole, 13 mm from the back face and 12 mm up from
   the extension's bottom: 18 mm below the bottom arm's hinge axis;
 - it stands on the extension: its hinges are 30 mm higher than the linkage
   plate's (axes_z), its back face on y = 0, centred on x = 0.
@@ -43,7 +43,7 @@ width = 2 * knuckle_half  # the strip, along x
 height = plate.height + extension
 axis_y = plate.axis_y
 axes_z = [z + extension for z in plate.axes_z]  # bottom, top
-shock_joint_y = 8.0  # the shock's lower joint, out from the back face
+shock_joint_y = 13.0  # the shock's lower joint, out from the back face
 shock_joint_z = 12.0  # the shock's lower joint, up from the bottom
 shock_tab_thickness = plate.shock_tab_thickness
 shock_eye_radius = plate.shock_eye_radius

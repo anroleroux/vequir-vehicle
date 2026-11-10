@@ -6,9 +6,9 @@ plate, extended down for the wheel) hinged to the arms' far ends, turned
 half a turn to face the fixed one. The arms are
 equal, so the linkage is a parallelogram: the wheel link swings in y-z and
 stays parallel to the fixed plate. A shock absorber runs from the
-steering beam's tab, out through the fixed plate's window between the arms,
-down through the bottom arm's wheel-end opening to the tab on the wheel
-link below the bottom arm: its body at the bottom, its rod at the top,
+fixed plate's joint, carried up and out over the top arm, down through the
+top and bottom arms' wheel-end openings to the tab on the wheel link below
+the bottom arm: its body at the bottom, its rod at the top,
 sliding in it as the linkage moves. Shown with the arms level (swing = 0);
 a swing turns the arms about the fixed plate's hinges, up for positive; the
 shock's travel allows +-15 degrees.
@@ -54,7 +54,7 @@ for side, part, half, y, dz in (("fixed", pin, plate.hinge_width / 2, near_y, 0.
                    loc=cq.Location(cq.Vector(-half, y, z), cq.Vector(0, 1, 0), 90))
 
 # the shock absorber, between its joints, in this frame (the fixed plate's
-# back face on y = 0): the steering beam's tab and the wheel link's
+# back face on y = 0): the fixed plate's, over the top arm, and the wheel link's
 upper = cq.Vector(0, plate.shock_mount_y, plate.shock_mount_z)
 lower = cq.Vector(0, far_y + wheel.axis_y - wheel.shock_joint_y,
                   wheel.shock_joint_z + rise - drop)

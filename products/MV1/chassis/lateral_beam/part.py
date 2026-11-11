@@ -8,7 +8,8 @@ that runs the entire beam and down both uprights. A disc on top, with a pin
 sticking up from its middle, carries the main beam's round end, its pin in
 the end's hole, so the beam turns about the pin to steer. A T leg, built
 the same way, runs from its middle in the longitudinal direction (along x),
-towards the middle of the chassis, to steer it by.
+towards the middle of the chassis, to steer it by: a slot along its top
+plate takes a slider, driven by the pin on the steering servo's horn.
 
 Assumptions where the description is silent:
 - 60 mm long (y) and 10 mm wide (x), 50 mm tall at its ends (the linkage
@@ -23,10 +24,13 @@ Assumptions where the description is silent:
   top plate with an 8 mm deep gusset along each edge and an end plate;
   with the beam under the front of the main beam it points rearwards, and
   the rear copy is turned half a turn so its leg points forwards; its top
-  is the beam's, 3 mm below the main beam's bottom (the disc's thickness),
+  is the beam's, 10 mm below the main beam's bottom (the disc's height),
   so it swings clear under it;
-- the disc is the main beam's round end (20 mm) and 3 mm thick, centred on
-  the beam's middle, on its top plate;
+- the disc is the main beam's round end (20 mm) and 10 mm tall, centred on
+  the beam's middle, on its top plate: it holds the main beam 10 mm above
+  the leg, room for the servo's horn and pin between them;
+- the leg's slot is 4 mm wide, along its centre line through the top
+  plate, from 26.5 to 42 mm from the pivot, short of the leg's end plate;
 - the pin is 0.2 mm smaller than the main beam's hole (3.2 mm in a
   3.4 mm hole) and as tall as the main beam plate is thick (3 mm), so it
   locates the plate through its whole hole and ends flush with its top;
@@ -48,7 +52,10 @@ gusset_depth = 8.0  # under the top plate, and in from the end plates
 gusset_radius = 15.0  # the gussets' inner edge, where the beam turns down
 leg_length = 40.0  # the T leg, along -x from the beam's side
 disc_diameter = beam.disc_diameter  # matches the main beam's round end
-disc_thickness = 3.0
+disc_thickness = 10.0  # the main beam's seat, above the top plate
+slot_width = 4.0  # along the leg, for the slider
+slot_from = 26.5  # from the pivot, along -x
+slot_to = 42.0
 pin_clearance = 0.2  # diametral, in the main beam's hole
 pin_diameter = beam.hole_diameter - pin_clearance
 pin_height = beam.disc_thickness  # flush with the main beam's top
@@ -91,6 +98,10 @@ for y0 in (width / 2 - gusset_thickness, -width / 2):
 result = result.union(_box(-leg_end, -leg_end + plate_thickness, -width / 2, width / 2,
                            height - gusset_depth, height))
 
+# the slot along the leg's top plate
+result = result.cut(cq.Workplane("XY", origin=(-(slot_from + slot_to) / 2, 0, height - plate_thickness - 1))
+                    .rect(slot_to - slot_from, slot_width).extrude(plate_thickness + 2))
+
 # the disc and the pin the main beam turns on
 disc = cq.Workplane("XY", origin=(0, 0, height)).circle(disc_diameter / 2).extrude(
     disc_thickness)
@@ -102,7 +113,10 @@ regions = {
     "pin": result.faces("%CYLINDER").faces(
         cq.selectors.NearestToPointSelector((0, 0, top + pin_height / 2))),
     "feet": result.faces("<Z"),  # the uprights' bottoms
-    "leg_end": result.faces("<X"),  # where the steering takes hold
+    "leg_end": result.faces("<X"),
+    "slot": result.faces(cq.selectors.BoxSelector(
+        (-slot_to - 0.1, -slot_width, height - plate_thickness - 0.1),
+        (-slot_from + 0.1, slot_width, height + 0.1))).faces("not(|Z)"),  # the slider's
     "left_end": result.faces(cq.selectors.NearestToPointSelector(
         (width / 2 - 1, length / 2, 10))),  # x-z faces to mount the linkage on
     "right_end": result.faces(cq.selectors.NearestToPointSelector(

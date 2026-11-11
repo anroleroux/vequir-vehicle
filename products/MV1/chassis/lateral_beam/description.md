@@ -11,3 +11,6 @@ The steering beam is shorter laterally (shorter again since), and built from pla
 beams: a plate at the top and at the outer sides (the uprights' outer
 faces), with curved gussets on each side edge that run along the entire
 beam and its extensions.
+
+The steering extension has a slot along it, with a slider that the servo
+horn's pin goes into.

@@ -23,9 +23,11 @@ Every part and assembly here is modelled in the vehicle's axes:
 | Designation | What |
 | --- | --- |
 | `MV1` | product, assembled: the chassis with a linkage mounted on each upright of its steering beams, four in all |
-| `MV1/chassis` | assembly: the longitudinal beam carried on two lateral steering beams, its end discs seated on theirs, their pins in its holes, their T legs pointing inwards |
-| `MV1/chassis/beam` | part: the main beam, a thin (3 mm) horizontal plate along x: a straight section 100 mm wide and 80 mm long in the middle, tapering sharply in to 20 mm round ends at the steering rotation points, 200 mm apart, each with a hole for the steering beam's pin |
-| `MV1/chassis/lateral_beam` | part: a steering beam running laterally (along y), 60 mm, built from plates: a top plate turning down into the end plates of its 50 mm uprights (where the linkages mount), curved gussets along both side edges, the full beam and uprights; a disc and pin on top to turn about; a 40 mm T leg along x to steer by |
+| `MV1/chassis` | assembly: the main beam carried on two lateral steering beams, its round ends seated on their discs, their pins in its holes, their T legs pointing inwards; an SG90 servo upside down on the main beam, its horn's pin in a slider in the front leg's slot, steering the front beam |
+| `MV1/chassis/beam` | part: the main beam, a thin (3 mm) horizontal plate along x: a straight section 100 mm wide and 80 mm long in the middle, tapering sharply in to 20 mm round ends at the steering rotation points, 200 mm apart, each with a hole for the steering beam's pin; on top, a 6 mm cylinder at each pivot and two gussets, straight in the middle just far enough apart for the SG90 and angled in to the pivots, with the servo's hole and tab blocks |
+| `MV1/chassis/lateral_beam` | part: a steering beam running laterally (along y), 60 mm, built from plates: a top plate turning down into the end plates of its 50 mm uprights (where the linkages mount), curved gussets along both side edges, the full beam and uprights; a 10 mm disc and pin on top to turn about; a 40 mm T leg along x to steer by, slotted for the slider |
+| `MV1/chassis/slider` | part: a 6 × 3.6 mm block with a flange, running in the steering leg's slot, the horn's pin turning in it |
+| `MV1/chassis/steering_pin` | part: a 2 × 8.3 mm pin from the servo horn down into the slider |
 | `MV1/linkage` | assembly: a four-bar linkage moving in y-z: a fixed plate in the x-z plane, two equal arms hinged to its top and bottom, the wheel link hinged to their far ends, kept parallel, and a shock absorber from the fixed plate's joint over the top arm, down through both arms' openings to the wheel link's tab, travelling ±15° |
 | `MV1/linkage/plate` | part: an I link: a straight 9.6 × 50 × 3 mm strip in the x-z plane, as wide as the middle knuckle of the hinge (about an x axis) at its top and bottom, flush with its flat back face, which mounts on an upright; carried on up and out over the top arm's opening to the shock absorber's upper joint; the fixed side link (the wheel link extends it on the other side) |
 | `MV1/linkage/wheel_link` | part: the wheel-side I link: a 19.6 mm strip for the wider wheel-side hinges, extended 30 mm down below its bottom hinge, where the wheel will come, with the shock's lower tab below the bottom arm |
@@ -44,7 +46,8 @@ products/<VEHICLE>/<assembly>/<part>/description.md   the instructions (source o
 products/<VEHICLE>/<assembly>/<part>/part.py          the CadQuery script
 ```
 
-Bought-in parts (screws, cells, boards) come from
+The steering servo (`actuators/sg90`) and its horn (`actuators/sg90_horn`)
+are bought in, from vequir-standard. Bought-in parts (screws, cells, boards, servos) come from
 [vequir-standard](https://github.com/anroleroux/vequir-standard), which
 `libraries.txt` names (`../vequir-standard/library`); place them with
 `load_library("hardware/m1_2x6_countersunk")`.

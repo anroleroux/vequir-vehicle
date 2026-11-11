@@ -5,6 +5,11 @@ longitudinal direction (front to back, along x): seen from the top it flares
 out in the middle and comes together at each end, at the steering rotation
 points, where it is rounded about a hole for the steering beam's pin.
 
+On its top: a cylinder at each pivot, and two gussets that run at an angle
+away from the pivots and straight through the middle, just far enough apart
+for the SG90 steering servo, which sits upside down between them, its
+output shaft down through the plate.
+
 Assumptions where the description is silent:
 - 200 mm between the steering rotation points (x = +-100 mm), 3 mm thick;
 - at each rotation point the plate is a 20 mm round end (the steering
@@ -16,12 +21,26 @@ Assumptions where the description is silent:
   straight lines tangent to the round ends; the corners where the taper
   meets the straight section are rounded to 10 mm;
 - its flat bottom is its seat on the steering beams' discs;
+- the cylinders at the pivots are the round ends' 20 mm, 6 mm tall on the
+  plate's top, the pivot holes running through them;
+- the gussets are 2 mm thick and as tall as the cylinders (6 mm); in the
+  middle they run straight along x (x = -66 to 66 mm), 12.8 mm apart
+  inside (the servo's 12.2 mm case with 0.3 mm each side); from there each
+  runs at an angle in towards the pivot, into the side of its cylinder;
+- the servo (vequir-standard's actuators/sg90) stands upside down on the
+  plate's top between the gussets, its output shaft's axis at x = 55 mm on
+  the centreline, the case reaching back along -x: a 12.4 mm hole lets its
+  gear housing through the plate (0.3 mm round it); its tabs rest on two
+  blocks between the gussets, 4.3 mm tall (the case's top to the tabs'
+  underside), each with a 1.6 mm pilot hole for an M2 screw;
 - longitudinal along x (+x is the front), centred on x = 0 and y = 0 (the
   vehicle's centreline), standing on z = 0.
 """
 import math
 
 import cadquery as cq
+
+servo = load_library("actuators/sg90")  # the steering servo, upside down on top
 
 # parameters, in mm
 length = 200.0  # between the steering rotation points, along x
@@ -31,6 +50,13 @@ middle_width = 100.0  # the straight section, along y
 middle_length = 80.0  # the straight section, along x
 corner_radius = 10.0  # where the taper meets the straight section
 hole_diameter = 3.4  # at each rotation point
+boss_height = 6.0  # the cylinders on top, at the pivots
+gusset_thickness = 2.0
+gusset_height = boss_height
+gusset_straight = 66.0  # the gussets' straight middle, each side of x = 0
+servo_clearance = 0.3  # each side of the servo's case, and round its gear housing
+servo_x = 55.0  # the servo's output shaft, along x
+pilot_diameter = 1.6  # in the tab blocks, for M2 screws
 
 disc_diameter = end_diameter  # the seat the steering beam's disc matches
 disc_thickness = thickness  # the depth of the holes the pins go in
@@ -75,14 +101,62 @@ plate = body.union(ends)
 for x, y in corners:
     plate = plate.edges("|Z").edges(cq.selectors.BoxSelector(
         (x - 1, y - 1, -1), (x + 1, y + 1, thickness + 1))).fillet(corner_radius)
-result = plate.cut(holes)
+# on top: the pivots' cylinders, the gussets, the servo's tab blocks
+top = thickness
+for x in end_x:
+    plate = plate.union(cq.Workplane("XY", origin=(x, 0, top)).circle(end_diameter / 2)
+                        .extrude(boss_height))
+gusset_y = servo.width / 2 + servo_clearance + gusset_thickness / 2  # their centre lines
+
+
+def _rib(x0, y0, x1, y1):
+    """A gusset along the line from (x0, y0) to (x1, y1), rounded at its ends."""
+    run = math.hypot(x1 - x0, y1 - y0)
+    turn = math.degrees(math.atan2(y1 - y0, x1 - x0))
+    rib = (cq.Workplane("XY").rect(run, gusset_thickness).extrude(gusset_height)
+           .rotate((0, 0, 0), (0, 0, 1), turn)
+           .translate(((x0 + x1) / 2, (y0 + y1) / 2, top)))
+    ends = (cq.Workplane("XY", origin=(0, 0, top)).pushPoints([(x0, y0), (x1, y1)])
+            .circle(gusset_thickness / 2).extrude(gusset_height))
+    return rib.union(ends)
+
+
+for side in (1, -1):
+    y = side * gusset_y
+    plate = plate.union(_rib(-gusset_straight, y, gusset_straight, y))
+    for x in end_x:
+        x0 = math.copysign(gusset_straight, x)
+        # towards the pivot, stopping just inside its cylinder's side
+        run = math.hypot(x - x0, y)
+        reach = (run - (end_diameter / 2 - gusset_thickness)) / run
+        plate = plate.union(_rib(x0, y, x0 + (x - x0) * reach, y - y * reach))
+
+case_lo = servo_x + servo.case_x - servo.length / 2  # the servo's case, along x
+case_hi = servo_x + servo.case_x + servo.length / 2
+tab_overhang = (servo.tab_span - servo.length) / 2
+block_height = servo.case_height - servo.tab_bottom - servo.tab_thickness  # case top to tabs
+block_width = 2 * (gusset_y - gusset_thickness / 2)  # between the gussets
+for x0 in (case_lo - tab_overhang, case_hi):
+    plate = plate.union(cq.Workplane("XY", origin=(x0 + tab_overhang / 2, 0, top))
+                        .rect(tab_overhang, block_width).extrude(block_height))
+pilots = (cq.Workplane("XY", origin=(0, 0, -1))
+          .pushPoints([(servo_x + servo.case_x - servo.hole_spacing / 2, 0),
+                       (servo_x + servo.case_x + servo.hole_spacing / 2, 0)])
+          .circle(pilot_diameter / 2).extrude(top + block_height + 2))
+housing_hole = (cq.Workplane("XY", origin=(servo_x, 0, -1))
+                .circle(servo.housing_diameter / 2 + servo_clearance).extrude(top + 2))
+pivot_holes = (cq.Workplane("XY", origin=(0, 0, -1)).pushPoints([(x, 0) for x in end_x])
+               .circle(hole_diameter / 2).extrude(top + boss_height + 2))
+result = plate.cut(holes).cut(pivot_holes).cut(pilots).cut(housing_hole)
 
 regions = {
     "front_hole": result.faces("%CYLINDER").faces(
         cq.selectors.NearestToPointSelector((length / 2, 0, thickness / 2))),
     "rear_hole": result.faces("%CYLINDER").faces(
         cq.selectors.NearestToPointSelector((-length / 2, 0, thickness / 2))),
-    "top": result.faces(">Z"),
+    "top": result.faces(cq.selectors.NearestToPointSelector((0, 30, thickness))),
+    "servo_hole": result.faces("%CYLINDER").faces(cq.selectors.NearestToPointSelector(
+        (servo_x + servo.housing_diameter / 2 + servo_clearance, 0, thickness / 2))),
     "bottom": result.faces("<Z"),  # its seat on the steering beams' discs
 }
 

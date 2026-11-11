@@ -28,6 +28,7 @@ def _summary(result):
 def test_the_catalogue_holds_the_mv1_chassis():
     assert sorted(e.designation for e in discover_all(PRODUCTS)) == [
         "MV1", "MV1/chassis", "MV1/chassis/beam", "MV1/chassis/lateral_beam",
+        "MV1/chassis/slider", "MV1/chassis/steering_pin",
         "MV1/linkage", "MV1/linkage/arm", "MV1/linkage/pin", "MV1/linkage/plate",
         "MV1/linkage/shock_body", "MV1/linkage/shock_pin", "MV1/linkage/shock_rod",
         "MV1/linkage/wheel_link", "MV1/linkage/wheel_pin"]
@@ -40,9 +41,10 @@ def test_the_main_beam_is_a_flat_plate_flaring_out_in_the_middle(tmp_path):
     wide and 80 mm long in the middle."""
     summary = _summary(build_part(PRODUCTS / "MV1/chassis/beam/part.py", tmp_path / "out"))
     box = summary["bounding_box"]
-    assert box["size"] == pytest.approx([220.0, 100.0, 3.0], abs=1e-3)
+    assert box["size"] == pytest.approx([220.0, 100.0, 9.0], abs=1e-3)  # 3 mm plate, 6 mm on top
     assert box["size"][0] == max(box["size"])  # longitudinal
     assert box["size"][2] == min(box["size"])  # flat, horizontal
+    assert summary["regions"]["servo_hole"]["count"] == 1
     assert box["min"][0] == pytest.approx(-110.0)
     assert box["min"][2] == pytest.approx(0.0)
     assert summary["n_solids"] == 1
@@ -58,12 +60,13 @@ def test_the_steering_beam_is_built_from_plates_with_curved_gussets(tmp_path):
     summary = _summary(build_part(PRODUCTS / "MV1/chassis/lateral_beam/part.py",
                                   tmp_path / "out"))
     box = summary["bounding_box"]
-    assert box["size"] == pytest.approx([55.0, 60.0, 56.0])  # leg to disc; 50 + 3 disc + 3 pin
-    assert box["size"][1] == max(box["size"])  # lateral
+    assert box["size"] == pytest.approx([55.0, 60.0, 63.0])  # leg to disc; 50 + 10 disc + 3 pin
+    assert box["size"][1] > box["size"][0]  # lateral
     assert box["min"] == pytest.approx([-45.0, -30.0, 0.0])
     assert summary["n_solids"] == 1
     for region in ("seat", "pin", "leg_end", "left_end", "right_end"):
         assert summary["regions"][region]["count"] == 1
+    assert summary["regions"]["slot"]["count"] == 4  # the slider's slot along the leg
     # far lighter than a solid 10 x 10 mm bar of the same outline: it is plates
     solid = 10 * 60 * 10 + 2 * 10 * 10 * 40 + 40 * 10 * 10
     assert summary["volume_mm3"] < 0.75 * solid
@@ -74,17 +77,22 @@ def test_the_steering_beam_is_built_from_plates_with_curved_gussets(tmp_path):
 def test_the_chassis_seats_the_beam_on_the_steering_beams_legs_inwards(tmp_path):
     """Each end disc seated on a steering beam's disc (the disc less the hole
     in contact), the pin in the hole with clearance; both T legs pointing
-    inwards under the longitudinal beam, clear of it. No interference."""
+    inwards under the main beam, clear of it; the servo upside down on the
+    main beam, its horn under it, the slider in the front leg's slot. No
+    interference."""
     summary = _summary(build_part(PRODUCTS / "MV1/chassis/assembly.py", tmp_path / "out"))
     assert summary["interference"] == []
     contacts = {(c["a"], c["b"]): c["area_mm2"] for c in summary["contacts"]}
     seat = math.pi * (10.0 ** 2 - 1.7 ** 2)
-    assert contacts == pytest.approx({
-        ("chassis/beam", "chassis/front_lateral_beam"): seat,
-        ("chassis/beam", "chassis/rear_lateral_beam"): seat,
-    }, rel=1e-3)
-    beam, front, rear = summary["components"]
-    assert beam["bounding_box_min"][2] == pytest.approx(53.0)  # 40 uprights, 10 bar, 3 disc
+    assert contacts[("chassis/beam", "chassis/front_lateral_beam")] == pytest.approx(seat, rel=1e-3)
+    assert contacts[("chassis/beam", "chassis/rear_lateral_beam")] == pytest.approx(seat, rel=1e-3)
+    for pair in (("chassis/beam", "chassis/servo"), ("chassis/servo", "chassis/horn"),
+                 ("chassis/front_lateral_beam", "chassis/slider")):
+        assert contacts[pair] > 0  # resting on each other
+    beam, front, rear, servo, horn, slider, pin = summary["components"]
+    assert beam["bounding_box_min"][2] == pytest.approx(60.0)  # 40 uprights, 10 bar, 10 disc
+    assert servo["bounding_box_max"][2] == pytest.approx(63.0 + 22.7)  # upside down on the plate
+    assert horn["bounding_box_min"][2] > front["bounding_box_max"][2] - 13.0  # above the leg's top
     assert [front["bounding_box_min"][0], front["bounding_box_max"][0]] == pytest.approx([55.0, 110.0])  # leg end to disc
     assert [rear["bounding_box_min"][0], rear["bounding_box_max"][0]] == pytest.approx([-110.0, -55.0])
     assert front["bounding_box_min"][2] == pytest.approx(0.0)  # standing on its uprights
@@ -211,3 +219,31 @@ def test_the_shock_travels_15_degrees_and_bottoms_out_beyond(tmp_path, swing, co
         assert ("shock_body", "shock_rod") in pairs
     else:
         assert pairs == set()
+
+
+def _chassis(tmp_path, steer):
+    """The chassis assembly, built with the servo's horn turned ``steer`` degrees."""
+    import shutil
+    root = tmp_path / f"steer_{steer}"
+    shutil.copytree(PRODUCTS, root / "products")
+    script = root / "products/MV1/chassis/assembly.py"
+    script.write_text(script.read_text().replace("steer = 0.0", f"steer = {steer}"))
+    (root / "libraries.txt").write_text(
+        f"{(ROOT.parent / 'vequir-standard/library').resolve()}\n")
+    return _summary(build_part(script, root / "out"))
+
+
+@pytest.mark.parametrize("steer, lean", [(0.0, 0.0), (45.0, 15.8), (-45.0, -15.8)])
+def test_the_servo_steers_the_front_beam_through_the_slider(tmp_path, steer, lean):
+    """The horn's pin, 14 mm from the shaft at x = 55, in the slider in the
+    front leg's slot: turning the horn 45 degrees turns the front steering
+    beam about 15.8 degrees about its pivot (x = 100), without
+    interference."""
+    summary = _chassis(tmp_path, steer)
+    assert summary["interference"] == []
+    parts = {c["name"].split("/")[-1]: c for c in summary["components"]}
+    pin = parts["steering_pin"]
+    centre = [(pin["bounding_box_min"][i] + pin["bounding_box_max"][i]) / 2 for i in (0, 1)]
+    turn = math.radians(steer)
+    assert centre == pytest.approx([55.0 + 14.0 * math.cos(turn), 14.0 * math.sin(turn)], abs=1e-3)
+    assert math.degrees(math.atan2(centre[1], 100.0 - centre[0])) == pytest.approx(lean, abs=0.1)

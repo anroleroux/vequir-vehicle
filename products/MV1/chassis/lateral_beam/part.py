@@ -12,15 +12,18 @@ towards the middle of the chassis, to steer it by: a slot along its top
 plate takes a slider, driven by the pin on the steering servo's horn.
 
 Assumptions where the description is silent:
-- 60 mm long (y) and 10 mm wide (x), 50 mm tall at its ends (the linkage
-  plate's height), so each end plate's outer face is an x-z face to mount
-  the linkage's 9.6 mm plate on;
+- 60 mm long (y) and 10 mm wide (x), its top 50 mm up (the linkage
+  plate's height); the uprights reach down to 15 mm (30 % of that
+  height), where the linkage plate's bottom is now mounted, so each end
+  plate's outer face is a 35 mm tall x-z face carrying the lower part of
+  the linkage's 9.6 mm plate;
 - the top plate and the end plates are 2 mm thick;
 - the gussets are 1.5 mm plates flush with the beam's side edges (x =
   +-5 mm), 8 mm deep: under the top plate along the beam and in from the
   end plates down the uprights, their inner edge curved to 15 mm where
   the beam turns down into the uprights;
-- the leg stands out 40 mm from the beam's side, along -x: a 10 mm wide
+- the leg stands out 60 mm from the beam's side, along -x, long enough to
+  reach the pin on the servo's horn, which points back towards the pivot: a 10 mm wide
   top plate with an 8 mm deep gusset along each edge and an end plate;
   with the beam under the front of the main beam it points rearwards, and
   the rear copy is turned half a turn so its leg points forwards; its top
@@ -30,12 +33,14 @@ Assumptions where the description is silent:
   the beam's middle, on its top plate: it holds the main beam 10 mm above
   the leg, room for the servo's horn and pin between them;
 - the leg's slot is 4 mm wide, along its centre line through the top
-  plate, from 26.5 to 42 mm from the pivot, short of the leg's end plate;
+  plate, from 52 to 62.5 mm from the pivot, short of the leg's end plate:
+  the slider's travel as the horn turns +-45 degrees;
 - the pin is 0.2 mm smaller than the main beam's hole (3.2 mm in a
   3.4 mm hole) and as tall as the main beam plate is thick (3 mm), so it
   locates the plate through its whole hole and ends flush with its top;
 - lateral along y (+y is the left), centred on x = 0 and y = 0 (the
-  vehicle's centreline), standing on z = 0 on its uprights.
+  vehicle's centreline); z as the linkage's: the uprights' bottoms 15 mm
+  up, the top plate's top 50 mm up.
 """
 import cadquery as cq
 
@@ -46,16 +51,17 @@ linkage_plate = load_part("../../linkage/plate")  # the uprights' height, to mou
 length = 60.0  # lateral, along y
 width = 10.0  # longitudinal, along x
 height = linkage_plate.height  # to the top plate's top, along z
+upright_bottom = 0.3 * linkage_plate.height  # the uprights' bottoms: the linkage raised by this
 plate_thickness = 2.0  # the top plate and the end plates
 gusset_thickness = 1.5  # along x (along y on the leg)
 gusset_depth = 8.0  # under the top plate, and in from the end plates
 gusset_radius = 15.0  # the gussets' inner edge, where the beam turns down
-leg_length = 40.0  # the T leg, along -x from the beam's side
+leg_length = 60.0  # the T leg, along -x from the beam's side
 disc_diameter = beam.disc_diameter  # matches the main beam's round end
 disc_thickness = 10.0  # the main beam's seat, above the top plate
 slot_width = 4.0  # along the leg, for the slider
-slot_from = 26.5  # from the pivot, along -x
-slot_to = 42.0
+slot_from = 52.0  # from the pivot, along -x
+slot_to = 62.5
 pin_clearance = 0.2  # diametral, in the main beam's hole
 pin_diameter = beam.hole_diameter - pin_clearance
 pin_height = beam.disc_thickness  # flush with the main beam's top
@@ -72,15 +78,17 @@ def _box(x0, x1, y0, y1, z0, z1):
 # the top plate and the outer end plates
 result = _box(-width / 2, width / 2, -length / 2, length / 2, height - plate_thickness, height)
 for y0 in (length / 2 - plate_thickness, -length / 2):
-    result = result.union(_box(-width / 2, width / 2, y0, y0 + plate_thickness, 0, height))
+    result = result.union(_box(-width / 2, width / 2, y0, y0 + plate_thickness,
+                               upright_bottom, height))
 
 # a gusset along each side edge: the beam's outline less a band 8 mm in, its
 # inner corners curved where the beam turns down into the uprights
-outline = cq.Workplane("YZ").center(0, height / 2).rect(length, height).extrude(gusset_thickness)
+outline = (cq.Workplane("YZ").center(0, (upright_bottom + height) / 2)
+           .rect(length, height - upright_bottom).extrude(gusset_thickness))
 inside = (
     cq.Workplane("YZ")
-    .center(0, (height - gusset_depth - 1) / 2 - 1)
-    .rect(length - 2 * gusset_depth, height - gusset_depth + 1)
+    .center(0, (upright_bottom - 1 + height - gusset_depth) / 2)
+    .rect(length - 2 * gusset_depth, height - gusset_depth - upright_bottom + 1)
     .extrude(gusset_thickness)
     .edges("|X").edges(">Z")
     .fillet(gusset_radius)

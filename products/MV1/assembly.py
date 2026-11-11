@@ -3,7 +3,8 @@
 The chassis with a four-bar linkage mounted on each upright of its two
 steering beams: four linkages, each fixed plate's flat back face on an
 upright's end face, the linkage reaching outwards (along y, away from the
-centreline), moving in y-z.
+centreline), moving in y-z; raised by the uprights' 15 mm (30 % of the
+linkage plate's height), the uprights reaching down to the plate's bottom.
 """
 import cadquery as cq
 
@@ -20,8 +21,9 @@ result.add(chassis.result, name="chassis")
 for axle, x in (("front", end_x), ("rear", -end_x)):
     # the linkage reaches along its +y: as is on the left, a half turn about z on the right
     result.add(linkage.result, name=f"{axle}_left_linkage",
-               loc=cq.Location(cq.Vector(x, end_y, 0)))
+               loc=cq.Location(cq.Vector(x, end_y, steering.upright_bottom)))
     result.add(linkage.result, name=f"{axle}_right_linkage",
-               loc=cq.Location(cq.Vector(x, -end_y, 0), cq.Vector(0, 0, 1), 180))
+               loc=cq.Location(cq.Vector(x, -end_y, steering.upright_bottom),
+                               cq.Vector(0, 0, 1), 180))
 
 regions = {}

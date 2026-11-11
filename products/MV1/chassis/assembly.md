@@ -4,6 +4,7 @@ The vehicle's chassis: the frame its other assemblies mount on, its main
 beam, a flat plate running in the longitudinal direction, carried on the
 two steering beams.
 
-An SG90 servo steers it: upside down on the main beam, its axle through the
-plate, its arm's pin in a slider in the slot of the front steering beam's
-steering extension.
+Two SG90 servos steer it, symmetrical front and back: upside down on the
+main beam, their axles through the plate, each one's lever pointing in
+towards its pivot, its pin in a slider in the slot of that steering beam's
+steering extension, which is extended to reach it.

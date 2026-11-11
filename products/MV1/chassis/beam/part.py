@@ -7,8 +7,8 @@ points, where it is rounded about a hole for the steering beam's pin.
 
 On its top: a cylinder at each pivot, and two gussets that run at an angle
 away from the pivots and straight through the middle, just far enough apart
-for the SG90 steering servo, which sits upside down between them, its
-output shaft down through the plate.
+for the two SG90 steering servos, one towards each end, which sit upside
+down between them, their output shafts down through the plate.
 
 Assumptions where the description is silent:
 - 200 mm between the steering rotation points (x = +-100 mm), 3 mm thick;
@@ -27,12 +27,13 @@ Assumptions where the description is silent:
   middle they run straight along x (x = -66 to 66 mm), 12.8 mm apart
   inside (the servo's 12.2 mm case with 0.3 mm each side); from there each
   runs at an angle in towards the pivot, into the side of its cylinder;
-- the servo (vequir-standard's actuators/sg90) stands upside down on the
-  plate's top between the gussets, its output shaft's axis at x = 55 mm on
-  the centreline, the case reaching back along -x: a 12.4 mm hole lets its
-  gear housing through the plate (0.3 mm round it); its tabs rest on two
-  blocks between the gussets, 4.3 mm tall (the case's top to the tabs'
-  underside), each with a 1.6 mm pilot hole for an M2 screw;
+- the servos (vequir-standard's actuators/sg90) stand upside down on the
+  plate's top between the gussets, symmetrical front and back: their output
+  shafts' axes at x = +-55 mm on the centreline, the cases reaching in
+  towards the middle; a 12.4 mm hole lets each one's gear housing through
+  the plate (0.3 mm round it); each one's tabs rest on two blocks between
+  the gussets, 4.3 mm tall (the case's top to the tabs' underside), each
+  with a 1.6 mm pilot hole for an M2 screw;
 - longitudinal along x (+x is the front), centred on x = 0 and y = 0 (the
   vehicle's centreline), standing on z = 0.
 """
@@ -55,7 +56,7 @@ gusset_thickness = 2.0
 gusset_height = boss_height
 gusset_straight = 66.0  # the gussets' straight middle, each side of x = 0
 servo_clearance = 0.3  # each side of the servo's case, and round its gear housing
-servo_x = 55.0  # the servo's output shaft, along x
+servo_x = 55.0  # the servos' output shafts, along x (front +, rear -)
 pilot_diameter = 1.6  # in the tab blocks, for M2 screws
 
 disc_diameter = end_diameter  # the seat the steering beam's disc matches
@@ -131,23 +132,26 @@ for side in (1, -1):
         reach = (run - (end_diameter / 2 - gusset_thickness)) / run
         plate = plate.union(_rib(x0, y, x0 + (x - x0) * reach, y - y * reach))
 
-case_lo = servo_x + servo.case_x - servo.length / 2  # the servo's case, along x
-case_hi = servo_x + servo.case_x + servo.length / 2
 tab_overhang = (servo.tab_span - servo.length) / 2
 block_height = servo.case_height - servo.tab_bottom - servo.tab_thickness  # case top to tabs
 block_width = 2 * (gusset_y - gusset_thickness / 2)  # between the gussets
-for x0 in (case_lo - tab_overhang, case_hi):
-    plate = plate.union(cq.Workplane("XY", origin=(x0 + tab_overhang / 2, 0, top))
-                        .rect(tab_overhang, block_width).extrude(block_height))
-pilots = (cq.Workplane("XY", origin=(0, 0, -1))
-          .pushPoints([(servo_x + servo.case_x - servo.hole_spacing / 2, 0),
-                       (servo_x + servo.case_x + servo.hole_spacing / 2, 0)])
-          .circle(pilot_diameter / 2).extrude(top + block_height + 2))
-housing_hole = (cq.Workplane("XY", origin=(servo_x, 0, -1))
-                .circle(servo.housing_diameter / 2 + servo_clearance).extrude(top + 2))
+pilots = cq.Workplane("XY")
+housing_holes = cq.Workplane("XY")
+for end in (1, -1):  # front, rear: mirror images, the cases reaching in
+    centre = end * (servo_x + servo.case_x)  # the servo's case, along x
+    for x0 in (centre - servo.length / 2 - tab_overhang, centre + servo.length / 2):
+        plate = plate.union(cq.Workplane("XY", origin=(x0 + tab_overhang / 2, 0, top))
+                            .rect(tab_overhang, block_width).extrude(block_height))
+    pilots = pilots.union(
+        cq.Workplane("XY", origin=(0, 0, -1))
+        .pushPoints([(centre - servo.hole_spacing / 2, 0), (centre + servo.hole_spacing / 2, 0)])
+        .circle(pilot_diameter / 2).extrude(top + block_height + 2))
+    housing_holes = housing_holes.union(
+        cq.Workplane("XY", origin=(end * servo_x, 0, -1))
+        .circle(servo.housing_diameter / 2 + servo_clearance).extrude(top + 2))
 pivot_holes = (cq.Workplane("XY", origin=(0, 0, -1)).pushPoints([(x, 0) for x in end_x])
                .circle(hole_diameter / 2).extrude(top + boss_height + 2))
-result = plate.cut(holes).cut(pivot_holes).cut(pilots).cut(housing_hole)
+result = plate.cut(holes).cut(pivot_holes).cut(pilots).cut(housing_holes)
 
 regions = {
     "front_hole": result.faces("%CYLINDER").faces(
@@ -155,8 +159,10 @@ regions = {
     "rear_hole": result.faces("%CYLINDER").faces(
         cq.selectors.NearestToPointSelector((-length / 2, 0, thickness / 2))),
     "top": result.faces(cq.selectors.NearestToPointSelector((0, 30, thickness))),
-    "servo_hole": result.faces("%CYLINDER").faces(cq.selectors.NearestToPointSelector(
+    "front_servo_hole": result.faces("%CYLINDER").faces(cq.selectors.NearestToPointSelector(
         (servo_x + servo.housing_diameter / 2 + servo_clearance, 0, thickness / 2))),
+    "rear_servo_hole": result.faces("%CYLINDER").faces(cq.selectors.NearestToPointSelector(
+        (-servo_x - servo.housing_diameter / 2 - servo_clearance, 0, thickness / 2))),
     "bottom": result.faces("<Z"),  # its seat on the steering beams' discs
 }
 

@@ -6,7 +6,8 @@ rotation points.
 At each steering rotation point, the plate has a hole. The lateral beams'
 discs support the plate there, their centred pins in the holes.
 
-An SG90 servo sits upside down on the plate, its axle through the plate. On
+Two SG90 servos sit upside down on the plate, symmetrical front and back,
+their axles through the plate. On
 top of the plate are cylinders at the pivots, and two gussets that run at
 an angle away from the pivots and straight in the middle, far enough apart
-for the SG90 to fit between them.
+for the SG90s to fit between them.

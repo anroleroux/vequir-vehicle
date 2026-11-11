@@ -33,8 +33,9 @@ Assumptions where the description is silent:
   the beam's middle, on its top plate: it holds the main beam 10 mm above
   the leg, room for the servo's horn and pin between them;
 - the leg's slot is 4 mm wide, along its centre line through the top
-  plate, from 52 to 62.5 mm from the pivot, short of the leg's end plate:
-  the slider's travel as the horn turns +-45 degrees;
+  plate, from 43.5 to 62.5 mm from the pivot, short of the leg's end
+  plate: the slider's travel as the horn turns the full +-90 degrees (the
+  pin from 59 mm out, with the horn along the leg, in to 47.1 mm);
 - the pin is 0.2 mm smaller than the main beam's hole (3.2 mm in a
   3.4 mm hole) and as tall as the main beam plate is thick (3 mm), so it
   locates the plate through its whole hole and ends flush with its top;
@@ -60,7 +61,7 @@ leg_length = 60.0  # the T leg, along -x from the beam's side
 disc_diameter = beam.disc_diameter  # matches the main beam's round end
 disc_thickness = 10.0  # the main beam's seat, above the top plate
 slot_width = 4.0  # along the leg, for the slider
-slot_from = 52.0  # from the pivot, along -x
+slot_from = 43.5  # from the pivot, along -x
 slot_to = 62.5
 pin_clearance = 0.2  # diametral, in the main beam's hole
 pin_diameter = beam.hole_diameter - pin_clearance

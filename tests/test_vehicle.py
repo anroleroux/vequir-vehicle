@@ -246,13 +246,14 @@ def _chassis(tmp_path, front, rear):
     return _summary(build_part(script, root / "out"))
 
 
-@pytest.mark.parametrize("steer, lean", [(0.0, 0.0), (45.0, -10.2), (-45.0, 10.2)])
+@pytest.mark.parametrize("steer, lean", [(0.0, 0.0), (45.0, -10.2), (-45.0, 10.2),
+                                         (90.0, -17.3), (-90.0, 17.3)])
 def test_the_servos_steer_the_beams_through_the_sliders(tmp_path, steer, lean):
     """Each horn points in towards the middle, its pin 14 mm from the shaft at
     x = +-55 in the slider in that leg's slot: turning the horns 45 degrees
     (the rear one the other way) turns both steering beams about 10.2
-    degrees about their pivots (x = +-100), symmetrically, without
-    interference."""
+    degrees about their pivots (x = +-100), the full 90 degrees about 17.3,
+    symmetrically, without interference."""
     summary = _chassis(tmp_path, steer, -steer)
     assert summary["interference"] == []
     parts = {c["name"].split("/")[-1]: c for c in summary["components"]}

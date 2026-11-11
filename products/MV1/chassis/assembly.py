@@ -7,7 +7,8 @@ T leg points inwards, under the main beam.
 
 Two SG90 steering servos stand upside down on the main beam, between its
 gussets, symmetrical front and back, their output shafts down through the
-plate; each one's horn points back towards its pivot and carries a pin down
+plate; each one's horn points in towards the middle, away from its pivot,
+and carries a pin down
 into the slider in that steering beam's slot, so turning the horn turns the
 steering beam. Shown with the horns along the slots (steer = 0); front_steer
 and rear_steer turn the horns, positive anticlockwise seen from above.
@@ -38,7 +39,7 @@ result.add(beam.result, name="beam", color=cq.Color(0.25, 0.40, 0.55),
 for end, name, steer in ((1, "front", front_steer), (-1, "rear", rear_steer)):
     pivot_x = end * beam.length / 2
     shaft_x = end * beam.servo_x
-    # the horn points in, towards the pivot; its pin, and the steering beam
+    # the horn points in, towards the middle; its pin, and the steering beam
     # turned so its slot runs through it, the slider at the pin
     arm = (180.0 if end > 0 else 0.0) + steer  # the horn's direction, about z
     pin_x = shaft_x + horn.arm_length * math.cos(math.radians(arm))

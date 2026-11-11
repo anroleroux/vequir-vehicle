@@ -23,7 +23,7 @@ Assumptions where the description is silent:
   end plates down the uprights, their inner edge curved to 15 mm where
   the beam turns down into the uprights;
 - the leg stands out 60 mm from the beam's side, along -x, long enough to
-  reach the pin on the servo's horn, which points back towards the pivot: a 10 mm wide
+  reach the pin on the servo's horn, which points in towards the middle: a 10 mm wide
   top plate with an 8 mm deep gusset along each edge and an end plate;
   with the beam under the front of the main beam it points rearwards, and
   the rear copy is turned half a turn so its leg points forwards; its top

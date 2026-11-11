@@ -10,3 +10,6 @@ hinge); the plates at the sides are I links (the middle knuckle).
 
 A shock absorber runs between the steering beam and the bottom arm: through
 the bottom arm, to a joint on the wheel link below the bottom arm.
+
+A standard small DC motor for each suspension, tilted downwards, drives the
+wheel hub on the wheel link through a shaft and couplers.

@@ -5,3 +5,6 @@ It is as wide as the arms' angled legs leave room for at the wheel side.
 
 Below the bottom arm, a joint on its inner face carries the shock absorber's
 lower end.
+
+It carries the wheel hub, on a bearing boss on its outer face, lower down
+the extension.

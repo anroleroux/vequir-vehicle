@@ -9,7 +9,11 @@ stays parallel to the fixed plate. A shock absorber runs from the
 fixed plate's joint, carried up and out over the top arm, down through the
 top and bottom arms' wheel-end openings to the tab on the wheel link below
 the bottom arm: its body at the bottom, its rod at the top,
-sliding in it as the linkage moves. Shown with the arms level (swing = 0);
+sliding in it as the linkage moves. A drive motor hangs on the fixed
+plate's bracket below the bottom hinge, tilted down at the wheel hub on the
+wheel link: its shaft, a coupler, the drive shaft, a second coupler and the
+hub's axle; the couplers are universal joints and the drive shaft slides in
+their yokes, so the drive follows the suspension. Shown with the arms level (swing = 0);
 a swing turns the arms about the fixed plate's hinges, up for positive; the
 shock's travel allows +-15 degrees.
 """
@@ -25,6 +29,12 @@ wheel_pin = load_part("wheel_pin")
 shock_body = load_part("shock_body")
 shock_rod = load_part("shock_rod")
 shock_pin = load_part("shock_pin")
+motor = load_library("actuators/motor_130")
+motor_yoke = load_part("motor_yoke")
+shaft_yoke = load_part("shaft_yoke")
+hub_yoke = load_part("hub_yoke")
+drive_shaft = load_part("drive_shaft")
+hub = load_part("wheel_hub")
 
 swing = 0.0  # degrees, the arms about the fixed plate's hinges, up positive
 
@@ -70,5 +80,35 @@ for name, at in (("upper_shock_pin", upper), ("lower_shock_pin", lower)):
     result.add(shock_pin.result, name=name, color=cq.Color(0.70, 0.70, 0.72),
                loc=cq.Location(at - cq.Vector(shock_pin.length / 2, 0, 0),
                                cq.Vector(0, 1, 0), 90))
+
+
+def _along(at, axis):
+    """A location at ``at`` turning a part's +z to ``axis`` (in the y-z plane)."""
+    return cq.Location(at, cq.Vector(1, 0, 0), math.degrees(math.atan2(-axis.y, axis.z)))
+
+
+# the drive: the motor on the fixed plate's bracket, its coupler's joint along
+# its shaft; the hub's coupler's joint on the hub's axis, which runs along +y
+# (out of the wheel link), moving with it
+result.add(motor.result, name="motor", color=cq.Color(0.75, 0.75, 0.70), loc=plate.motor_location)
+motor_joint = plate.motor_face + plate.motor_axis * (
+    motor.shaft_length + motor_yoke.bore_start + 0.2)
+hub_joint = cq.Vector(0, far_y + wheel.axis_y - wheel.drive_joint_y, wheel.hub_z + rise - drop)
+drive = (hub_joint - motor_joint).normalized()
+outward = cq.Vector(0, 1, 0)
+result.add(motor_yoke.result, name="motor_yoke", color=cq.Color(0.55, 0.55, 0.60),
+           loc=_along(motor_joint, -plate.motor_axis))
+result.add(shaft_yoke.result, name="motor_shaft_yoke", color=cq.Color(0.55, 0.55, 0.60),
+           loc=_along(motor_joint, drive))
+result.add(shaft_yoke.result, name="hub_shaft_yoke", color=cq.Color(0.55, 0.55, 0.60),
+           loc=_along(hub_joint, -drive))
+result.add(hub_yoke.result, name="hub_yoke", color=cq.Color(0.55, 0.55, 0.60),
+           loc=_along(hub_joint, outward))
+# the drive shaft centred between the joints, sliding in the shaft yokes
+span_middle = (motor_joint + hub_joint) * 0.5
+result.add(drive_shaft.result, name="drive_shaft", color=cq.Color(0.70, 0.70, 0.72),
+           loc=_along(span_middle - drive * (drive_shaft.length / 2), drive))
+result.add(hub.result, name="wheel_hub", color=cq.Color(0.20, 0.20, 0.22),
+           loc=_along(hub_joint + outward * hub.inner_end, outward))
 
 regions = {}

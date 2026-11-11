@@ -13,10 +13,10 @@ plate takes a slider, driven by the pin on the steering servo's horn.
 
 Assumptions where the description is silent:
 - 60 mm long (y) and 10 mm wide (x), its top 50 mm up (the linkage
-  plate's height); the uprights reach down to 15 mm (30 % of that
-  height), where the linkage plate's bottom is now mounted, so each end
-  plate's outer face is a 35 mm tall x-z face carrying the lower part of
-  the linkage's 9.6 mm plate;
+  plate's height); the uprights reach down to 25 mm (30 % of that height,
+  and 10 mm more), where the linkage plate's bottom is now mounted, so
+  each end plate's outer face is a 25 mm tall x-z face carrying the lower
+  part of the linkage's 9.6 mm plate;
 - the top plate and the end plates are 2 mm thick;
 - the gussets are 1.5 mm plates flush with the beam's side edges (x =
   +-5 mm), 8 mm deep: under the top plate along the beam and in from the
@@ -40,7 +40,7 @@ Assumptions where the description is silent:
   3.4 mm hole) and as tall as the main beam plate is thick (3 mm), so it
   locates the plate through its whole hole and ends flush with its top;
 - lateral along y (+y is the left), centred on x = 0 and y = 0 (the
-  vehicle's centreline); z as the linkage's: the uprights' bottoms 15 mm
+  vehicle's centreline); z as the linkage's: the uprights' bottoms 25 mm
   up, the top plate's top 50 mm up.
 """
 import cadquery as cq
@@ -52,7 +52,7 @@ linkage_plate = load_part("../../linkage/plate")  # the uprights' height, to mou
 length = 60.0  # lateral, along y
 width = 10.0  # longitudinal, along x
 height = linkage_plate.height  # to the top plate's top, along z
-upright_bottom = 0.3 * linkage_plate.height  # the uprights' bottoms: the linkage raised by this
+upright_bottom = 0.3 * linkage_plate.height + 10.0  # the uprights' bottoms: the linkage raised by this
 plate_thickness = 2.0  # the top plate and the end plates
 gusset_thickness = 1.5  # along x (along y on the leg)
 gusset_depth = 8.0  # under the top plate, and in from the end plates

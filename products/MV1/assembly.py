@@ -3,8 +3,8 @@
 The chassis with a four-bar linkage mounted on each upright of its two
 steering beams: four linkages, each fixed plate's flat back face on an
 upright's end face, the linkage reaching outwards (along y, away from the
-centreline), moving in y-z; raised by the uprights' 15 mm (30 % of the
-linkage plate's height), the uprights reaching down to the plate's bottom.
+centreline), moving in y-z; raised by the uprights' 25 mm (30 % of the
+linkage plate's height, and 10 mm more), the uprights reaching down to the plate's bottom.
 """
 import cadquery as cq
 

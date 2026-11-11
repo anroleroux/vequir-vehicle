@@ -7,7 +7,8 @@ moving plate facing it. The side plates are the linkage's I links: the
 strip is only as wide as its hinges' middle knuckle, which sits between the
 outer knuckles of an H-link arm, and runs straight down from the top hinge
 to the bottom one, and on up over the top arm to carry the shock absorber's
-upper joint.
+upper joint. Below its bottom hinge it carries the bracket of the wheel's
+drive motor, tilted down towards the hub.
 
 Assumptions where the description is silent:
 - the hinges are 30 mm wide overall (x): the arms' width and the pins'
@@ -27,9 +28,23 @@ Assumptions where the description is silent:
   radius) about a 2.2 mm hole, 34 mm out at z = 62 mm: the shock
   absorber's upper joint. The bar clears the top arm and the wheel link
   over the linkage's travel;
+- the drive motor (vequir-standard's actuators/motor_130) hangs below the
+  bottom hinge, its body behind the plate (under the steering beam), its
+  shaft tilted down at the hub: its front face's centre 1 mm behind the
+  back face and 12 mm below the plate's bottom, its axis aimed at the
+  drive's joint by the hub (47 mm out, 32 mm below the plate's bottom,
+  with the arms level), about 22.6 degrees down;
+- the motor's bracket is a 2 mm plate across its front face, 22 x 24 mm,
+  with a 6.6 mm hole for its bearing boss and two 2.2 mm holes for M2
+  screws, hung from a block under the strip (3.5 mm deep, 6 mm out from
+  the back face) clear of the motor, its shaft and the coupler;
 - the plate stands on z = 0, centred on x = 0, its back face on y = 0.
 """
+import math
+
 import cadquery as cq
+
+motor = load_library("actuators/motor_130")  # the wheel's drive motor, under the plate
 
 # parameters, in mm
 hinge_width = 30.0  # the hinges overall, along x: the arms and the pins
@@ -47,6 +62,17 @@ shock_mount_z = 62.0  # the shock's upper joint, above the top arm
 shock_tab_thickness = 3.0  # the joints' tabs, along x
 shock_eye_radius = 4.0  # around the joints' pins
 tower_top = 74.0  # the strip, carried on up above the top hinge
+motor_face_y = -1.0  # the drive motor's front face's centre, behind the back face
+motor_face_z = -12.0  # below the plate's bottom
+drive_target_y = 47.0  # the drive's joint by the hub, with the arms level
+drive_target_z = -32.0
+bracket_width = 22.0  # across the motor's front face, along x
+bracket_height = 24.0  # across it, in the y-z plane
+bracket_thickness = 2.0
+bracket_hole = 6.6  # for the motor's bearing boss
+screw_hole = 2.2  # for M2 screws into the motor's front face
+hanger_depth = 3.5  # the block under the strip the bracket hangs from
+hanger_reach = 6.0  # out from the back face
 overhang_thickness = 6.0  # the bar out over the top arm, along z
 overhang_reach = shock_mount_y + shock_eye_radius  # the bar, out from the back face
 
@@ -85,6 +111,30 @@ tab = (
 result = result.union(tab).cut(_along_x(-width, width, shock_mount_y, shock_mount_z,
                                         hole_diameter / 2))
 
+# the drive motor's place: its front face's centre, its axis tilted down at
+# the drive's joint by the hub; motor_location turns the motor's +z (its
+# shaft) to that axis
+motor_tilt = math.degrees(math.atan2(motor_face_z - drive_target_z,
+                                     drive_target_y - motor_face_y))  # down from +y
+motor_axis = cq.Vector(0, math.cos(math.radians(motor_tilt)), -math.sin(math.radians(motor_tilt)))
+motor_face = cq.Vector(0, motor_face_y, motor_face_z)
+motor_location = cq.Location(motor_face, cq.Vector(1, 0, 0),
+                             math.degrees(math.atan2(-motor_axis.y, motor_axis.z)))
+
+# the bracket across the motor's front face (built in the motor's frame),
+# hung from a block under the strip
+bracket = (
+    cq.Workplane("XY").rect(bracket_width, bracket_height).extrude(bracket_thickness)
+    .cut(cq.Workplane("XY", origin=(0, 0, -1)).circle(bracket_hole / 2)
+         .extrude(bracket_thickness + 2))
+    .cut(cq.Workplane("XY", origin=(0, 0, -1))
+         .pushPoints([(-motor.mount_hole_spacing / 2, 0), (motor.mount_hole_spacing / 2, 0)])
+         .circle(screw_hole / 2).extrude(bracket_thickness + 2))
+)
+hanger = _box(-width / 2, width / 2, 0, hanger_reach, -hanger_depth, 0)
+result = result.union(hanger).union(
+    cq.Workplane("XY").add(bracket.val().moved(motor_location)))
+
 regions = {
     "bottom_hinge": result.faces(cq.selectors.NearestToPointSelector(
         (0, axis_y, axes_z[0] + hole_diameter / 2))),
@@ -93,6 +143,8 @@ regions = {
     "front": result.faces(">Y"),
     "back": result.faces(cq.selectors.NearestToPointSelector(
         (0, 0, height / 2))),  # flat: mounts on an upright
+    "motor_bracket": result.faces("%CYLINDER").faces(cq.selectors.NearestToPointSelector(
+        motor_face + motor_axis * (bracket_thickness / 2) + cq.Vector(0, 0, bracket_hole / 2))),
     "shock_joint": result.faces("%CYLINDER").faces(cq.selectors.NearestToPointSelector(
         (0, shock_mount_y, shock_mount_z + 1))),
 }

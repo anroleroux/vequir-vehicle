@@ -4,3 +4,6 @@ four-bar linkage.
 
 It extends up and out over the top arm's hole; the shock absorber's upper
 joint is there.
+
+Below its bottom hinge it carries the bracket of the wheel's drive motor, a
+standard small DC motor tilted downwards towards the hub.

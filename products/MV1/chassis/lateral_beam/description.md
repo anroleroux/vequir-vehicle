@@ -16,4 +16,4 @@ The steering extension has a slot along it, with a slider that the servo
 horn's pin goes into.
 
 Its downward extensions are shortened: the suspension assemblies are moved
-up about 30 % of the base link's height.
+up about 30 % of the base link's height, and another 10 mm.

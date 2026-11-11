@@ -16,7 +16,7 @@ Assumptions where the description is silent:
 """
 import cadquery as cq
 
-beam = load_part("../lateral_beam")  # the slot it runs in
+beam = load_part("../steering_beam")  # the slot it runs in
 
 # parameters, in mm
 length = 6.0  # along the slot

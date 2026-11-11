@@ -1,6 +1,6 @@
-"""MV1 linkage
+"""MV1 drive
 
-A four-bar linkage moving in the y-z plane: the fixed plate in the x-z
+One of the MV1's four drives: a four-bar linkage moving in the y-z plane: the fixed plate in the x-z
 plane, two arms hinged to its top and bottom, and the wheel link (the
 plate, extended down for the wheel) hinged to the arms' far ends, turned
 half a turn to face the fixed one. The arms are
@@ -13,7 +13,8 @@ sliding in it as the linkage moves. A drive motor hangs on the fixed
 plate's bracket below the bottom hinge, tilted down at the wheel hub on the
 wheel link: its shaft, a coupler, the drive shaft, a second coupler and the
 hub's axle; the couplers are universal joints and the drive shaft slides in
-their yokes, so the drive follows the suspension. Shown with the arms level (swing = 0);
+their yokes, so the drive follows the suspension. The wheel is bolted to
+the hub's flange. Shown with the arms level (swing = 0);
 a swing turns the arms about the fixed plate's hinges, up for positive; the
 shock's travel allows +-15 degrees.
 """
@@ -35,6 +36,7 @@ shaft_yoke = load_part("shaft_yoke")
 hub_yoke = load_part("hub_yoke")
 drive_shaft = load_part("drive_shaft")
 hub = load_part("wheel_hub")
+wheel_part = load_part("wheel")
 
 swing = 0.0  # degrees, the arms about the fixed plate's hinges, up positive
 
@@ -42,7 +44,7 @@ near_y = plate.axis_y  # the fixed plate's hinge axes
 far_y = near_y + arm.length * math.cos(math.radians(swing))  # the wheel link's
 rise = arm.length * math.sin(math.radians(swing))  # the wheel link, along z
 
-result = cq.Assembly(name="linkage")
+result = cq.Assembly(name="drive")
 result.add(plate.result, name="fixed_plate", color=cq.Color(0.25, 0.40, 0.55))
 # a half turn about z puts its hinge axis at -axis_y; move it out to far_y,
 # and down so its hinges meet the arms'
@@ -108,7 +110,11 @@ result.add(hub_yoke.result, name="hub_yoke", color=cq.Color(0.55, 0.55, 0.60),
 span_middle = (motor_joint + hub_joint) * 0.5
 result.add(drive_shaft.result, name="drive_shaft", color=cq.Color(0.70, 0.70, 0.72),
            loc=_along(span_middle - drive * (drive_shaft.length / 2), drive))
+hub_at = hub_joint + outward * hub.inner_end  # the hub's axle's inner end
 result.add(hub.result, name="wheel_hub", color=cq.Color(0.20, 0.20, 0.22),
-           loc=_along(hub_joint + outward * hub.inner_end, outward))
+           loc=_along(hub_at, outward))
+# the wheel against the hub's flange, on its spigot
+result.add(wheel_part.result, name="wheel", color=cq.Color(0.10, 0.10, 0.10),
+           loc=_along(hub_at + outward * (hub.axle_length + hub.flange_thickness), outward))
 
 regions = {}

@@ -17,3 +17,6 @@ horn's pin goes into.
 
 Its downward extensions are shortened: the suspension assemblies are moved
 up about 30 % of the base link's height, and another 10 mm.
+
+It is split into two: the rear steering beam is this one, and the front
+steering beam adds the cab's extrusions to it.

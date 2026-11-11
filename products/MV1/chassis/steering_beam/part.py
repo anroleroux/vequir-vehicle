@@ -1,7 +1,8 @@
-"""Lateral steering beam
+"""Steering beam
 
-The MV1 chassis's steering beam, running in the lateral direction
-(sideways, along y), built from plates rather than solid bars: a top plate
+The MV1 chassis's steering beam (the rear one; the front one adds the cab's
+posts to it), running in the lateral direction (sideways, along y), built
+from plates rather than solid bars: a top plate
 along the beam that turns down at each end into an outer end plate, the
 upright a linkage mounts on, with a curved gusset along each side edge
 that runs the entire beam and down both uprights. A disc on top, with a pin
@@ -46,7 +47,7 @@ Assumptions where the description is silent:
 import cadquery as cq
 
 beam = load_part("../beam")  # the main beam this one carries
-linkage_plate = load_part("../../linkage/plate")  # the uprights' height, to mount it on
+linkage_plate = load_part("../../drives/plate")  # the uprights' height, to mount it on
 
 # parameters, in mm
 length = 60.0  # lateral, along y

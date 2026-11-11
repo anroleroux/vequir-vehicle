@@ -3,7 +3,8 @@
 The main beam (a flat plate) on two lateral steering beams, one under each
 end: each round end seated on a steering beam's disc, the steering beam's
 pin in its hole, so the steering beam turns about it. Each steering beam's
-T leg points inwards, under the main beam.
+T leg points inwards, under the main beam. The front steering beam
+carries the cab's posts, forward of its ends.
 
 Two SG90 steering servos stand upside down on the main beam, between its
 gussets, symmetrical front and back, their output shafts down through the
@@ -17,7 +18,8 @@ import math
 import cadquery as cq
 
 beam = load_part("beam")
-lateral = load_part("lateral_beam")
+lateral = load_part("steering_beam")
+front_beam = load_part("front_steering_beam")  # with the cab's posts
 slider = load_part("slider")
 pin = load_part("steering_pin")
 servo = load_library("actuators/sg90")
@@ -47,7 +49,8 @@ for end, name, steer in ((1, "front", front_steer), (-1, "rear", rear_steer)):
     # turned a half turn at the rear
     lean = math.degrees(math.atan2(end * -pin_y, end * (pivot_x - pin_x)))
     facing = lean if end > 0 else 180.0 + lean
-    result.add(lateral.result, name=f"{name}_lateral_beam", color=cq.Color(0.80, 0.45, 0.20),
+    part = front_beam if end > 0 else lateral
+    result.add(part.result, name=f"{name}_steering_beam", color=cq.Color(0.80, 0.45, 0.20),
                loc=cq.Location(cq.Vector(pivot_x, 0, 0), cq.Vector(0, 0, 1), facing))
     # the servo, upside down: its case's top on the plate's top, the shaft
     # down, the case reaching in towards the middle

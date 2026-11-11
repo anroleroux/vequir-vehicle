@@ -20,3 +20,6 @@ up about 30 % of the base link's height, and another 10 mm.
 
 It is split into two: the rear steering beam is this one, and the front
 steering beam adds the cab's extrusions to it.
+
+Its pivot cylinders (the discs the base plate sits on) are lowered as far
+as the servo lever connection allows, so the base plate is lowered too.

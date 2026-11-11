@@ -13,26 +13,27 @@ towards the middle of the chassis, to steer it by: a slot along its top
 plate takes a slider, driven by the pin on the steering servo's horn.
 
 Assumptions where the description is silent:
-- 60 mm long (y) and 10 mm wide (x), its top 50 mm up (the linkage
-  plate's height); the uprights reach down to 25 mm (30 % of that height,
-  and 10 mm more), where the linkage plate's bottom is now mounted, so
-  each end plate's outer face is a 25 mm tall x-z face carrying the lower
-  part of the linkage's 9.6 mm plate;
+- 60 mm long (y) and 10 mm wide (x), its top 50 mm up; the uprights reach
+  down to 29 mm, the linkage plate's bottom (its bottom hinge 32 mm up),
+  so each end plate's outer face is a 21 mm tall x-z face carrying the
+  lower part of the linkage's 9.6 mm plate;
 - the top plate and the end plates are 2 mm thick;
 - the gussets are 1.5 mm plates flush with the beam's side edges (x =
   +-5 mm), 8 mm deep: under the top plate along the beam and in from the
-  end plates down the uprights, their inner edge curved to 15 mm where
+  end plates down the uprights, their inner edge curved to 12 mm where
   the beam turns down into the uprights;
 - the leg stands out 60 mm from the beam's side, along -x, long enough to
   reach the pin on the servo's horn, which points in towards the middle: a 10 mm wide
   top plate with an 8 mm deep gusset along each edge and an end plate;
   with the beam under the front of the main beam it points rearwards, and
   the rear copy is turned half a turn so its leg points forwards; its top
-  is the beam's, 10 mm below the main beam's bottom (the disc's height),
+  is the beam's, 7 mm below the main beam's bottom (the disc's height),
   so it swings clear under it;
-- the disc is the main beam's round end (20 mm) and 10 mm tall, centred on
-  the beam's middle, on its top plate: it holds the main beam 10 mm above
-  the leg, room for the servo's horn and pin between them;
+- the disc is the main beam's round end (20 mm) and 7 mm tall, centred on
+  the beam's middle, on its top plate: it holds the main beam 7 mm above
+  the leg, just room for the servo's horn and pin between them (the gear
+  housing 1 mm below the plate, the horn's 4 mm hub, 1 mm over the
+  slider's flange);
 - the leg's slot is 4 mm wide, along its centre line through the top
   plate, from 43.5 to 62.5 mm from the pivot, short of the leg's end
   plate: the slider's travel as the horn turns the full +-90 degrees (the
@@ -41,7 +42,7 @@ Assumptions where the description is silent:
   3.4 mm hole) and as tall as the main beam plate is thick (3 mm), so it
   locates the plate through its whole hole and ends flush with its top;
 - lateral along y (+y is the left), centred on x = 0 and y = 0 (the
-  vehicle's centreline); z as the linkage's: the uprights' bottoms 25 mm
+  vehicle's centreline); z as the linkage's: the uprights' bottoms 29 mm
   up, the top plate's top 50 mm up.
 """
 import cadquery as cq
@@ -52,15 +53,15 @@ linkage_plate = load_part("../../drives/plate")  # the uprights' height, to moun
 # parameters, in mm
 length = 60.0  # lateral, along y
 width = 10.0  # longitudinal, along x
-height = linkage_plate.height  # to the top plate's top, along z
-upright_bottom = 0.3 * linkage_plate.height + 10.0  # the uprights' bottoms: the linkage raised by this
+height = 50.0  # to the top plate's top, along z
+upright_bottom = 29.0  # the uprights' bottoms: the linkage plate's, its bottom hinge 32 mm up
 plate_thickness = 2.0  # the top plate and the end plates
 gusset_thickness = 1.5  # along x (along y on the leg)
 gusset_depth = 8.0  # under the top plate, and in from the end plates
-gusset_radius = 15.0  # the gussets' inner edge, where the beam turns down
+gusset_radius = 12.0  # the gussets' inner edge, where the beam turns down
 leg_length = 60.0  # the T leg, along -x from the beam's side
 disc_diameter = beam.disc_diameter  # matches the main beam's round end
-disc_thickness = 10.0  # the main beam's seat, above the top plate
+disc_thickness = 7.0  # the main beam's seat, above the top plate: room for the horn and pin
 slot_width = 4.0  # along the leg, for the slider
 slot_from = 43.5  # from the pivot, along -x
 slot_to = 62.5

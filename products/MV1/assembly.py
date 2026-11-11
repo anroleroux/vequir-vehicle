@@ -3,8 +3,8 @@
 The chassis with a drive mounted on each upright of its steering beams:
 four drives, each fixed plate's flat back face on an upright's end face,
 the drive reaching outwards (along y, away from the centreline), moving in
-y-z; raised by the uprights' 25 mm (30 % of the linkage plate's height,
-and 10 mm more), the uprights reaching down to the plate's bottom.
+y-z; each base link's bottom on its upright's bottom, 29 mm up (its bottom
+hinge 32 mm up).
 
 The cab rests on the front drives' base links' tops and the front steering
 beam's posts, turning with the front steering about the front pivot; the

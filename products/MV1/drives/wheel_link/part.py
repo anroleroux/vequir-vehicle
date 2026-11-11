@@ -14,7 +14,7 @@ Assumptions where the description is silent:
   plate: the arms' legs angle out 5 mm each side over their length; the
   strip is the middle knuckle's width, 0.2 mm short of the arm's outer
   knuckles each side (19.6 mm);
-- the linkage plate's 50 mm between its top and bottom edges, its 3 mm
+- the linkage plate's 42 mm between its top and bottom edges, its 3 mm
   thickness, 3 mm knuckle radius and 2.2 mm holes, its knuckles flush with
   its back face;
 - the extension is the strip's width and thickness, 40 mm below the bottom

@@ -14,18 +14,22 @@ Assumptions where the description is silent:
 - the hinges are 30 mm wide overall (x): the arms' width and the pins'
   length; the strip is the middle knuckle's width, 0.2 mm short of the
   arm's outer knuckles each side (9.6 mm);
-- 50 mm high (z) and 3 mm thick (y);
+- 42 mm high (z) and 3 mm thick (y): its hinges 36 mm apart, the top arm
+  4 mm lower and the bottom arm 4 mm higher than they were (44 mm apart), to
+  bring the suspension down;
 - each hinge is a knuckle about an axis along x, a knuckle's radius (3 mm)
   in front of the plate's back face and in from its top or bottom edge, so
   the knuckle is flush with the back face and the top or bottom edge, and
   stands 3 mm proud of the front face; the back face is flat, to mount the
   plate on (a steering beam's upright);
 - a 2.2 mm hole along each axis, for a 2 mm pin;
-- above its top hinge the strip carries on straight up to 74 mm, then
-  turns out (+y) as a 6 mm bar (z = 68 to 74 mm), the strip's width,
+- above its top hinge the strip carries on straight up to 27 mm above
+  the hinge (66 mm), then turns out (+y) as a 6 mm bar (z = 60 to 66 mm),
+  the strip's width,
   reaching 38 mm out from the back face, over the top arm's wheel-end
   opening; a 3 mm tab (x) hangs from the bar's end to a rounded end (4 mm
-  radius) about a 2.2 mm hole, 34 mm out at z = 62 mm: the shock
+  radius) about a 2.2 mm hole, 34 mm out, 15 mm above the top hinge
+  (z = 54 mm): the shock
   absorber's upper joint. The bar clears the top arm and the wheel link
   over the linkage's travel;
 - the drive motor (vequir-standard's actuators/motor_130) hangs below the
@@ -48,7 +52,7 @@ motor = load_library("actuators/motor_130")  # the wheel's drive motor, under th
 
 # parameters, in mm
 hinge_width = 30.0  # the hinges overall, along x: the arms and the pins
-height = 50.0  # along z
+height = 42.0  # along z: its hinges 36 mm apart (the bottom one 4 mm up, the top one 4 mm down from 44)
 thickness = 3.0  # along y
 knuckle_radius = 3.0  # the hinge knuckles, about each axis
 middle = 5.0  # where the arm's outer knuckles start, each side of x = 0
@@ -58,10 +62,10 @@ turn_clearance = 0.3  # radial, around the other leaf's knuckles
 hole_diameter = 2.2  # along each hinge axis, for a 2 mm pin
 
 shock_mount_y = 34.0  # the shock's upper joint, out from the back face
-shock_mount_z = 62.0  # the shock's upper joint, above the top arm
+shock_mount_z = height - 3.0 + 15.0  # the shock's upper joint, 15 mm above the top hinge
 shock_tab_thickness = 3.0  # the joints' tabs, along x
 shock_eye_radius = 4.0  # around the joints' pins
-tower_top = 74.0  # the strip, carried on up above the top hinge
+tower_top = height - 3.0 + 27.0  # the strip, carried on up 27 mm above the top hinge
 motor_face_y = -1.0  # the drive motor's front face's centre, behind the back face
 motor_face_z = -12.0  # below the plate's bottom
 drive_target_y = 47.0  # the drive's joint by the hub, with the arms level

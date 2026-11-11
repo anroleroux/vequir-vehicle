@@ -6,7 +6,7 @@ straddling the steering beam's shock tab on a 2 mm pin.
 
 Assumptions where the description is silent:
 - the rod is 4 mm across (0.2 mm clearance in the body's 4.4 mm bore),
-  reaching 57 mm from the joint's axis;
+  reaching 47 mm from the joint's axis;
 - its fork matches the body's: two 2 mm cheeks, 3.4 mm apart, rounded
   4 mm about the joint's axis, with a 2.2 mm hole, joined by a 2 mm yoke
   where the rod starts;
@@ -19,7 +19,7 @@ body = load_part("../shock_body")  # the tube it slides in, the fork it matches
 
 # parameters, in mm
 diameter = 4.0
-reach = 57.0  # the rod's end, from the joint's axis
+reach = 47.0  # the rod's end, from the joint's axis
 yoke_start = body.eye_radius  # the yoke across the fork, from the joint's axis
 yoke_thickness = 2.0
 

@@ -15,3 +15,6 @@ both arms, to a joint on the wheel link below the bottom arm.
 A standard small DC motor for each suspension, tilted downwards, drives the
 wheel hub on the wheel link through a shaft and couplers. The wheel is
 bolted to the hub's flange.
+
+The upper horizontal links are shifted down 4 mm and the lower ones up
+4 mm, to reduce the overall height of the suspension.

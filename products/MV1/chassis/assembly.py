@@ -8,9 +8,8 @@ T leg points inwards, under the main beam.
 Two SG90 steering servos stand upside down on the main beam, between its
 gussets, symmetrical front and back, their output shafts down through the
 plate; each one's horn points in towards the middle, away from its pivot,
-and carries a pin down
-into the slider in that steering beam's slot, so turning the horn turns the
-steering beam. Shown with the horns along the slots (steer = 0); front_steer
+and carries a pin down into the slider in that steering beam's slot, so
+turning the horn turns the steering beam. Shown with the horns along the slots (steer = 0); front_steer
 and rear_steer turn the horns, positive anticlockwise seen from above.
 """
 import math

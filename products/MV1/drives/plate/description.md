@@ -10,3 +10,5 @@ standard small DC motor tilted downwards towards the hub.
 
 Its upper link is shifted down 4 mm and its lower link up 4 mm, to reduce
 the overall height of the suspension.
+
+Its upper link is lowered another 4 mm.

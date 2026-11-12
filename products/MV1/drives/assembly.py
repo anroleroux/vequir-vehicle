@@ -16,7 +16,7 @@ hub's axle; the couplers are universal joints and the drive shaft slides in
 their yokes, so the drive follows the suspension. The wheel is bolted to
 the hub's flange. Shown with the arms level (swing = 0);
 a swing turns the arms about the fixed plate's hinges, up for positive; the
-shock's travel allows +-15 degrees.
+shock's travel allows +-10 degrees.
 """
 import math
 

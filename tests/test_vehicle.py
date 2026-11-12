@@ -121,19 +121,19 @@ def test_the_linkage_plate_stands_in_x_z_with_a_hinge_top_and_bottom(tmp_path):
     box = summary["bounding_box"]
     # the bar 38 mm out, the tower 74 mm up; the motor's bracket, 22 mm wide,
     # tilted down below the bottom hinge, reaching behind the back face
-    assert box["size"] == pytest.approx([22.0, 43.615, 89.846], abs=1e-3)
+    assert box["size"] == pytest.approx([22.0, 39.458, 85.074], abs=1e-3)
     assert summary["regions"]["back"]["count"] == 1  # one flat face, in the x-z plane
-    assert box["max"][1] == pytest.approx(38.0) and box["max"][2] == pytest.approx(66.0)
+    assert box["max"][1] == pytest.approx(38.0) and box["max"][2] == pytest.approx(62.0)
     assert summary["regions"]["motor_bracket"]["count"] == 1
     knuckles = 2 * (math.pi * 3.0 ** 2 / 2 - math.pi * 1.1 ** 2) * 9.6  # the half proud, less the hole
     tower = 9.6 * 3.0 * 24.0
     bar = 9.6 * 35.0 * 6.0
-    tab = (8.0 * 6.0 + math.pi * 4.0 ** 2 / 2 - math.pi * 1.1 ** 2) * 3.0
-    strip = 9.6 * 3.0 * 42.0 + knuckles + tower + bar + tab
+    tab = (8.0 * 5.0 + math.pi * 4.0 ** 2 / 2 - math.pi * 1.1 ** 2) * 3.0
+    strip = 9.6 * 3.0 * 38.0 + knuckles + tower + bar + tab
     hanger = 9.6 * 6.0 * 3.5
-    bracket = 22.0 * 24.0 * 2.0 - math.pi * (3.3 ** 2 + 2 * 1.1 ** 2) * 2.0
+    bracket = 22.0 * 22.0 * 2.0 - math.pi * (3.3 ** 2 + 2 * 1.1 ** 2) * 2.0
     # the bracket's plate overlaps the hanger a little where they join
-    assert strip + hanger + bracket - 60.0 < summary["volume_mm3"] < strip + hanger + bracket
+    assert strip + hanger + bracket - 80.0 < summary["volume_mm3"] < strip + hanger + bracket
     assert summary["regions"]["shock_joint"]["count"] == 1
     assert summary["n_solids"] == 1
     assert summary["regions"]["bottom_hinge"]["count"] == 1
@@ -152,10 +152,10 @@ def _linkage(tmp_path, swing):
     return _summary(build_part(script, root / "out"))
 
 
-@pytest.mark.parametrize("swing", [0.0, 15.0, -15.0])
+@pytest.mark.parametrize("swing", [0.0, 10.0, -10.0])
 def test_the_four_bar_linkage_moves_in_y_z_without_collisions(tmp_path, swing):
     """Fixed plate, two equal arms, wheel link, four pins and the shock
-    absorber: no interference level or swung 15 degrees either way (the
+    absorber: no interference level or swung 10 degrees either way (the
     shock's travel), the wheel link kept upright and moved only in y-z, the
     pins on the arms' far hinges, the shock's ends on its joints."""
     summary = _linkage(tmp_path, swing)
@@ -176,21 +176,21 @@ def test_the_four_bar_linkage_moves_in_y_z_without_collisions(tmp_path, swing):
     assert moving["bounding_box_max"][1] - moving["bounding_box_min"][1] == pytest.approx(
         21.0, abs=1e-3)  # with the shock tab and the hub's boss
     # the summary rounds to 4 decimals; the wheel link reaches 40 mm lower
-    assert moving["bounding_box_min"][2] == pytest.approx(-40.0 + rise, abs=1e-3)
+    assert moving["bounding_box_min"][2] == pytest.approx(-22.0 + rise, abs=1e-3)
     # the hub on its axis through the wheel link, 32 mm below the bottom hinge
     hub = parts["wheel_hub"]
     centre = [(hub["bounding_box_min"][i] + hub["bounding_box_max"][i]) / 2 for i in (0, 2)]
-    assert centre == pytest.approx([0.0, -32.0 + rise], abs=1e-3)
+    assert centre == pytest.approx([0.0, -14.0 + rise], abs=1e-3)
     assert hub["bounding_box_min"][1] == pytest.approx(3.0 + run + 3.0 - 14.0 + 4.2, abs=1e-3)
-    assert moving["bounding_box_max"][2] == pytest.approx(42.0 + rise, abs=1e-3)  # its top hinge's
+    assert moving["bounding_box_max"][2] == pytest.approx(38.0 + rise, abs=1e-3)  # its top hinge's
     pin = parts["wheel_bottom_pin"]
     centre = [(pin["bounding_box_min"][i] + pin["bounding_box_max"][i]) / 2 for i in (1, 2)]
     assert centre == pytest.approx([3.0 + run, 3.0 + rise], abs=1e-3)
     # the shock's ends: the fixed plate's joint over the top arm (34 mm out,
     # 62 mm up), the wheel link's tab (10 mm in from the wheel hinge axis,
     # 18 mm below the arm)
-    for name, at in (("upper_shock_pin", [34.0, 54.0]),
-                     ("lower_shock_pin", [3.0 + run - 10.0, -18.0 + rise])):
+    for name, at in (("upper_shock_pin", [34.0, 51.0]),
+                     ("lower_shock_pin", [3.0 + run - 10.0, 3.0 + rise])):
         pin = parts[name]
         centre = [(pin["bounding_box_min"][i] + pin["bounding_box_max"][i]) / 2 for i in (1, 2)]
         assert centre == pytest.approx(at, abs=1e-3)
@@ -222,14 +222,14 @@ def test_mv1_mounts_a_drive_on_each_upright_and_the_cab_and_bed(tmp_path):
         assert [box_min[0], box_max[0]] == pytest.approx([x - 30.0, x + 30.0])  # the 60 mm wheel
         # the motors reach in under the steering beam, 3 mm short of the centreline
         inner = box_min[1] if side > 0 else box_max[1]
-        assert inner == pytest.approx(side * 3.0, abs=0.1)
+        assert inner == pytest.approx(side * 3.7, abs=0.1)
         outer = box_max[1] if side > 0 else box_min[1]
         assert outer == pytest.approx(side * 118.5, abs=0.1)  # the wheel's outer face
         # the wheel's bottom (the ground); the base links' tops: raised 25 mm
-        assert [box_min[2], box_max[2]] == pytest.approx([-33.0, 95.0])
+        assert [box_min[2], box_max[2]] == pytest.approx([-15.0, 91.0])
     cab, bed = parts["cab"], parts["bed"]
-    assert cab["bounding_box_min"][2] == pytest.approx(95.0)  # on the base links' tops
-    assert bed["bounding_box_max"][2] == pytest.approx(97.0 + 22.0)  # 2 mm over the rear drives
+    assert cab["bounding_box_min"][2] == pytest.approx(91.0)  # on the base links' tops
+    assert bed["bounding_box_max"][2] == pytest.approx(93.0 + 22.0)  # 2 mm over the rear drives
 
 
 def _mv1(tmp_path, cab_turn):
@@ -260,12 +260,12 @@ def test_the_cab_turns_clear_of_the_fixed_bed(tmp_path, turn, hits):
 
 def test_the_front_steering_beam_carries_the_cabs_posts(tmp_path):
     """The steering beam with two posts forward of its ends, opposite its
-    leg, up to the drives' base links' tops (95 mm)."""
+    leg, up to the drives' base links' tops (91 mm)."""
     summary = _summary(build_part(PRODUCTS / "MV1/chassis/front_steering_beam/part.py",
                                   tmp_path / "out"))
     box = summary["bounding_box"]
     assert box["min"] == pytest.approx([-65.0, -30.0, 29.0])
-    assert box["max"] == pytest.approx([30.0, 30.0, 95.0])
+    assert box["max"] == pytest.approx([30.0, 30.0, 91.0])
     assert summary["n_solids"] == 1
     assert summary["regions"]["left_post_top"]["count"] == 1
     assert summary["regions"]["right_post_top"]["count"] == 1
@@ -281,7 +281,7 @@ def test_the_arm_is_an_h_wider_at_the_wheel_and_the_wheel_link_reaches_down(tmp_
     assert arm["n_solids"] == 1
     wheel = _summary(build_part(PRODUCTS / "MV1/drives/wheel_link/part.py", tmp_path / "wheel"))
     # with its shock tab and the hub's boss
-    assert wheel["bounding_box"]["size"] == pytest.approx([19.6, 21.0, 82.0])
+    assert wheel["bounding_box"]["size"] == pytest.approx([19.6, 21.0, 60.0])
     assert wheel["regions"]["hub_bore"]["count"] == 1
     assert wheel["regions"]["wheel_end"]["count"] == 1
     assert wheel["regions"]["shock_tab"]["count"] == 1
@@ -289,10 +289,10 @@ def test_the_arm_is_an_h_wider_at_the_wheel_and_the_wheel_link_reaches_down(tmp_
     assert pin["bounding_box"]["size"] == pytest.approx([2.0, 2.0, 40.0])
 
 
-@pytest.mark.parametrize("swing, collides", [(15.0, False), (25.0, True)])
-def test_the_shock_travels_15_degrees_and_bottoms_out_beyond(tmp_path, swing, collides):
-    """Its rod slides in the body between 56 and 84 mm between the joints;
-    past +15 degrees the rod's end runs into the body's floor."""
+@pytest.mark.parametrize("swing, collides", [(10.0, False), (12.0, True)])
+def test_the_shock_travels_10_degrees_and_bottoms_out_beyond(tmp_path, swing, collides):
+    """Its rod slides in the body between 40.6 and 59 mm between the joints;
+    past +10 degrees the rod's end runs into the body's floor."""
     summary = _linkage(tmp_path, swing)
     pairs = {(c["a"].split("/")[-1], c["b"].split("/")[-1]) for c in summary["interference"]}
     if collides:
@@ -337,7 +337,7 @@ def test_the_servos_steer_the_beams_through_the_sliders(tmp_path, steer, lean):
             lean, abs=0.1)
 
 
-@pytest.mark.parametrize("swing", [0.0, 15.0, -15.0])
+@pytest.mark.parametrize("swing", [0.0, 10.0, -10.0])
 def test_the_drive_follows_the_suspension_in_its_couplers(tmp_path, swing):
     """The motor on the fixed plate's bracket, tilted down; the drive shaft
     between the two couplers' joints, its ends in the shaft yokes' bores
@@ -349,11 +349,12 @@ def test_the_drive_follows_the_suspension_in_its_couplers(tmp_path, swing):
     assert ("fixed_plate", "motor") in contacts  # on its bracket
     # the couplers' joints: along the motor's shaft (13.8 mm from its front
     # face, tilted 22.6 degrees down), and on the hub's axis, moving with it
-    tilt = math.atan2(32.0 - 12.0, 47.0 + 1.0)
+    tilt = math.atan2(14.0 - 12.0, 47.0 + 1.0)
     motor_joint = (-1.0 + 13.8 * math.cos(tilt), -12.0 - 13.8 * math.sin(tilt))
     turn = math.radians(swing)
-    hub_joint = (3.0 + 55.0 * math.cos(turn) + 3.0 - 14.0, -32.0 + 55.0 * math.sin(turn))
+    hub_joint = (3.0 + 55.0 * math.cos(turn) + 3.0 - 14.0, -14.0 + 55.0 * math.sin(turn))
     span = math.dist(motor_joint, hub_joint)
-    shaft = 38.234 - 14.0  # the drive shaft: the joints' span with the arms level, less 7 mm a side
+    level = math.dist(motor_joint, (47.0, -14.0))  # the joints' span with the arms level
+    shaft = level - 14.0  # the drive shaft: that, less 7 mm a side
     end = (span - shaft) / 2  # each end, from its joint
     assert 4.2 <= end <= 14.0

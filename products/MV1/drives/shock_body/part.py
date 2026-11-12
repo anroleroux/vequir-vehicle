@@ -5,13 +5,15 @@ wheel link: a tube, closed at its bottom end, which is a fork straddling
 the wheel link's shock tab on a 2 mm pin. The shock rod slides in it.
 
 Assumptions where the description is silent:
-- the tube is 10 mm across with a 4.4 mm bore for the 4 mm rod, 41 mm
-  long, starting 5 mm from the joint's axis, closed for its first 2 mm;
+- the tube is 10 mm across with a 4.4 mm bore for the 4 mm rod, 28.5 mm
+  long, starting 4.5 mm from the joint's axis, closed for its first 1 mm;
 - the fork's two cheeks are 2 mm thick, either side of the 3 mm tab with
   0.2 mm clearance (3.4 mm between them, 7.4 mm overall), each rounded
   4 mm about the joint's axis, with a 2.2 mm hole;
-- the travel it allows: 56 to 84 mm between the joints' axes, the rod's
-  end at least 5 mm off the bore's bottom and 8 mm inside the tube;
+- the travel it allows: 40.6 to 59.0 mm between the joints' axes (the
+  linkage swinging +-10 degrees), the rod's end at least 1.5 mm off the
+  bore's bottom and 7.5 mm inside the tube, the tube's top 0.6 mm short of
+  the rod's yoke;
 - modelled with the joint's axis along x through the origin, the tube
   along +z (the assembly turns it towards the upper joint).
 """
@@ -22,9 +24,9 @@ plate = load_part("../plate")  # the joints' tab and eye
 # parameters, in mm
 tube_diameter = 10.0
 bore_diameter = 4.4  # for the 4 mm rod
-tube_length = 41.0
-tube_start = 5.0  # from the joint's axis
-tube_floor = 2.0  # closed at its bottom
+tube_length = 28.5
+tube_start = 4.5  # from the joint's axis
+tube_floor = 1.0  # closed at its bottom
 cheek_thickness = 2.0
 tab_clearance = 0.2  # each side of the tab, between the cheeks
 eye_radius = plate.shock_eye_radius

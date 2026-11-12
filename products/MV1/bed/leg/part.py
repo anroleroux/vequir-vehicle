@@ -6,8 +6,8 @@ floor.
 
 Assumptions where the description is silent:
 - 6 x 6 mm, standing on the base plate's top (60 mm up) and reaching the
-  tray's floor, 2 mm above the rear drives' base links' tops (97 mm up):
-  37 mm tall;
+  tray's floor, 2 mm above the rear drives' base links' tops (93 mm up):
+  33 mm tall;
 - a 1.6 mm pilot hole down its top for the M2 screw through the floor, and
   it is glued or screwed to the plate below (not modelled);
 - modelled standing on z = 0, centred on x = 0, y = 0.

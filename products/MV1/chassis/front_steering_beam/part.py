@@ -11,7 +11,7 @@ Assumptions where the description is silent:
   under the beam's top and 6 mm wide (y), its outer face flush with the
   end plate's (y = +-30 mm), clear of the drive mounted outside it;
 - each post is the arm's 6 x 8 mm, at the arm's front end, standing up to
-  the drives' base links' tops (95 mm: the linkage plate's 66 mm tower
+  the drives' base links' tops (91 mm: the linkage plate's 62 mm tower
   over the uprights' 29 mm), with a 2.2 mm hole down its top for an M2
   screw into the cab's floor; the corner between arm and post filled with
   a curved gusset, 10 mm radius;

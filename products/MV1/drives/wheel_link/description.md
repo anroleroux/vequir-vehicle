@@ -8,3 +8,6 @@ lower end.
 
 It carries the wheel hub, on a bearing boss on its outer face, lower down
 the extension.
+
+The shock absorber's lower joint is level with the bottom link, and the
+hub is moved up by the same.

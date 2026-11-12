@@ -18,3 +18,6 @@ bolted to the hub's flange.
 
 The upper horizontal links are shifted down 4 mm and the lower ones up
 4 mm, to reduce the overall height of the suspension.
+
+The upper links are lowered another 4 mm; the shock absorber's lower joint
+is moved up level with the bottom link, and the hub up by the same.

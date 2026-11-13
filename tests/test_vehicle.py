@@ -27,7 +27,9 @@ def _summary(result):
 
 def test_the_catalogue_holds_the_mv1_chassis():
     assert sorted(e.designation for e in discover_all(PRODUCTS)) == [
-        "MV1", "MV1/bed", "MV1/bed/leg", "MV1/bed/tray", "MV1/cab", "MV1/cab/body",
+        "MV1", "MV1/bed", "MV1/bed/leg", "MV1/bed/tray", "MV1/belt_drives",
+        "MV1/belt_drives/base_link", "MV1/belt_drives/bottom_link",
+        "MV1/belt_drives/top_link", "MV1/belt_drives/wheel_link", "MV1/cab", "MV1/cab/body",
         "MV1/chassis", "MV1/chassis/beam", "MV1/chassis/front_steering_beam",
         "MV1/chassis/slider", "MV1/chassis/steering_beam", "MV1/chassis/steering_pin",
         "MV1/drives", "MV1/drives/arm", "MV1/drives/drive_shaft", "MV1/drives/hub_yoke",
@@ -358,3 +360,38 @@ def test_the_drive_follows_the_suspension_in_its_couplers(tmp_path, swing):
     shaft = level - 14.0  # the drive shaft: that, less 7 mm a side
     end = (span - shaft) / 2  # each end, from its joint
     assert 4.2 <= end <= 14.0
+
+
+def test_the_belt_drives_links_make_a_four_bar_linkage(tmp_path):
+    """The second suspension concept's links: a Y base link (one hinge at the
+    bottom middle, two top ends either side of the top hinge, each extended
+    out and up to a shock joint), a single flat bar on top, an H of two bars
+    with two shock lugs at the bottom, and the wheel link, the same Y with
+    its stem carried down to the hub; both uprights seat the drive shaft half
+    way between the links. Assembled, nothing interferes."""
+    links = PRODUCTS / "MV1/belt_drives"
+    base = _summary(build_part(links / "base_link/part.py", tmp_path / "base"))
+    assert base["bounding_box"]["size"] == pytest.approx([26.4, 18.0, 62.0], abs=1e-3)
+    assert base["bounding_box"]["min"][1] == pytest.approx(0.0, abs=1e-6)  # a flat back
+    assert base["n_solids"] == 1
+    for region in ("bottom_hinge", "top_hinge_left", "top_hinge_right", "shaft_bearing",
+                   "shock_joint_left", "shock_joint_right", "back"):
+        assert base["regions"][region]["count"] == 1
+    top = _summary(build_part(links / "top_link/part.py", tmp_path / "top"))
+    assert top["bounding_box"]["size"] == pytest.approx([16.0, 61.0, 6.0], abs=1e-3)
+    bottom = _summary(build_part(links / "bottom_link/part.py", tmp_path / "bottom"))
+    assert bottom["bounding_box"]["size"] == pytest.approx([26.4, 61.0, 14.0], abs=1e-3)
+    assert bottom["n_solids"] == 1  # the two bars, joined by the crossbar
+    assert bottom["regions"]["shock_joint_left"]["count"] == 1
+    assert bottom["regions"]["shock_joint_right"]["count"] == 1
+    wheel = _summary(build_part(links / "wheel_link/part.py", tmp_path / "wheel"))
+    # the base link's 46 mm of hinges, on 22 mm of stem; the hub's boss 4 mm proud
+    assert wheel["bounding_box"]["size"] == pytest.approx([26.4, 10.0, 68.0], abs=1e-3)
+    assert wheel["regions"]["hub_bore"]["count"] == 1
+    assert wheel["regions"]["shaft_bearing"]["count"] == 1
+    drive = _summary(build_part(links / "assembly.py", tmp_path / "drive"))
+    assert sorted(c["name"].split("/")[-1] for c in drive["components"]) == [
+        "base_link", "bottom_link", "top_link", "wheel_link"]
+    assert drive["interference"] == []
+    # the wheel link's stem reaches 22 mm below the base link's bottom
+    assert drive["bounding_box"]["min"][2] == pytest.approx(-22.0, abs=1e-3)

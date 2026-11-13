@@ -1,0 +1,138 @@
+"""Steering beam
+
+The MV1 chassis's steering beam (the rear one; the front one adds the cab's
+posts to it), running in the lateral direction (sideways, along y), built
+from plates rather than solid bars: a top plate
+along the beam that turns down at each end into an outer end plate, the
+upright a linkage mounts on, with a curved gusset along each side edge
+that runs the entire beam and down both uprights. A disc on top, with a pin
+sticking up from its middle, carries the main beam's round end, its pin in
+the end's hole, so the beam turns about the pin to steer. A T leg, built
+the same way, runs from its middle in the longitudinal direction (along x),
+towards the middle of the chassis, to steer it by: a slot along its top
+plate takes a slider, driven by the pin on the steering servo's horn.
+
+Assumptions where the description is silent:
+- 60 mm long (y) and 10 mm wide (x), its top 50 mm up; the uprights reach
+  down to 29 mm, the linkage plate's bottom (its bottom hinge 32 mm up),
+  so each end plate's outer face is a 21 mm tall x-z face carrying the
+  lower part of the linkage's 9.6 mm plate;
+- the top plate and the end plates are 2 mm thick;
+- the gussets are 1.5 mm plates flush with the beam's side edges (x =
+  +-5 mm), 8 mm deep: under the top plate along the beam and in from the
+  end plates down the uprights, their inner edge curved to 12 mm where
+  the beam turns down into the uprights;
+- the leg stands out 60 mm from the beam's side, along -x, long enough to
+  reach the pin on the servo's horn, which points in towards the middle: a 10 mm wide
+  top plate with an 8 mm deep gusset along each edge and an end plate;
+  with the beam under the front of the main beam it points rearwards, and
+  the rear copy is turned half a turn so its leg points forwards; its top
+  is the beam's, 7 mm below the main beam's bottom (the disc's height),
+  so it swings clear under it;
+- the disc is the main beam's round end (20 mm) and 7 mm tall, centred on
+  the beam's middle, on its top plate: it holds the main beam 7 mm above
+  the leg, just room for the servo's horn and pin between them (the gear
+  housing 1 mm below the plate, the horn's 4 mm hub, 1 mm over the
+  slider's flange);
+- the leg's slot is 4 mm wide, along its centre line through the top
+  plate, from 43.5 to 62.5 mm from the pivot, short of the leg's end
+  plate: the slider's travel as the horn turns the full +-90 degrees (the
+  pin from 59 mm out, with the horn along the leg, in to 47.1 mm);
+- the pin is 0.2 mm smaller than the main beam's hole (3.2 mm in a
+  3.4 mm hole) and as tall as the main beam plate is thick (3 mm), so it
+  locates the plate through its whole hole and ends flush with its top;
+- lateral along y (+y is the left), centred on x = 0 and y = 0 (the
+  vehicle's centreline); z as the linkage's: the uprights' bottoms 29 mm
+  up, the top plate's top 50 mm up.
+"""
+import cadquery as cq
+
+beam = load_part("../beam")  # the main beam this one carries
+linkage_plate = load_part("../../drives/plate")  # the uprights' height, to mount it on
+
+# parameters, in mm
+length = 60.0  # lateral, along y
+width = 10.0  # longitudinal, along x
+height = 50.0  # to the top plate's top, along z
+upright_bottom = 29.0  # the uprights' bottoms: the linkage plate's, its bottom hinge 32 mm up
+plate_thickness = 2.0  # the top plate and the end plates
+gusset_thickness = 1.5  # along x (along y on the leg)
+gusset_depth = 8.0  # under the top plate, and in from the end plates
+gusset_radius = 12.0  # the gussets' inner edge, where the beam turns down
+leg_length = 60.0  # the T leg, along -x from the beam's side
+disc_diameter = beam.disc_diameter  # matches the main beam's round end
+disc_thickness = 7.0  # the main beam's seat, above the top plate: room for the horn and pin
+slot_width = 4.0  # along the leg, for the slider
+slot_from = 43.5  # from the pivot, along -x
+slot_to = 62.5
+pin_clearance = 0.2  # diametral, in the main beam's hole
+pin_diameter = beam.hole_diameter - pin_clearance
+pin_height = beam.disc_thickness  # flush with the main beam's top
+
+top = height + disc_thickness  # the disc's top face: the main beam's seat
+leg_end = width / 2 + leg_length  # the leg's end, along -x
+
+
+def _box(x0, x1, y0, y1, z0, z1):
+    return cq.Workplane("XY").box(x1 - x0, y1 - y0, z1 - z0, centered=False).translate(
+        (x0, y0, z0))
+
+
+# the top plate and the outer end plates
+result = _box(-width / 2, width / 2, -length / 2, length / 2, height - plate_thickness, height)
+for y0 in (length / 2 - plate_thickness, -length / 2):
+    result = result.union(_box(-width / 2, width / 2, y0, y0 + plate_thickness,
+                               upright_bottom, height))
+
+# a gusset along each side edge: the beam's outline less a band 8 mm in, its
+# inner corners curved where the beam turns down into the uprights
+outline = (cq.Workplane("YZ").center(0, (upright_bottom + height) / 2)
+           .rect(length, height - upright_bottom).extrude(gusset_thickness))
+inside = (
+    cq.Workplane("YZ")
+    .center(0, (upright_bottom - 1 + height - gusset_depth) / 2)
+    .rect(length - 2 * gusset_depth, height - gusset_depth - upright_bottom + 1)
+    .extrude(gusset_thickness)
+    .edges("|X").edges(">Z")
+    .fillet(gusset_radius)
+)
+gusset = outline.cut(inside)
+for x0 in (width / 2 - gusset_thickness, -width / 2):
+    result = result.union(gusset.translate((x0, 0, 0)))
+
+# the T leg: a top plate, a gusset along each edge, an end plate
+result = result.union(_box(-leg_end, -width / 2, -width / 2, width / 2,
+                           height - plate_thickness, height))
+for y0 in (width / 2 - gusset_thickness, -width / 2):
+    result = result.union(_box(-leg_end, -width / 2, y0, y0 + gusset_thickness,
+                               height - gusset_depth, height))
+result = result.union(_box(-leg_end, -leg_end + plate_thickness, -width / 2, width / 2,
+                           height - gusset_depth, height))
+
+# the slot along the leg's top plate
+result = result.cut(cq.Workplane("XY", origin=(-(slot_from + slot_to) / 2, 0, height - plate_thickness - 1))
+                    .rect(slot_to - slot_from, slot_width).extrude(plate_thickness + 2))
+
+# the disc and the pin the main beam turns on
+disc = cq.Workplane("XY", origin=(0, 0, height)).circle(disc_diameter / 2).extrude(
+    disc_thickness)
+pin = cq.Workplane("XY", origin=(0, 0, top)).circle(pin_diameter / 2).extrude(pin_height)
+result = result.union(disc).union(pin)
+
+regions = {
+    "seat": result.faces(cq.selectors.NearestToPointSelector((disc_diameter / 2 - 1, 0, top))),
+    "pin": result.faces("%CYLINDER").faces(
+        cq.selectors.NearestToPointSelector((0, 0, top + pin_height / 2))),
+    "feet": result.faces("<Z"),  # the uprights' bottoms
+    "leg_end": result.faces("<X"),
+    "slot": result.faces(cq.selectors.BoxSelector(
+        (-slot_to - 0.1, -slot_width, height - plate_thickness - 0.1),
+        (-slot_from + 0.1, slot_width, height + 0.1))).faces("not(|Z)"),  # the slider's
+    "left_end": result.faces(cq.selectors.NearestToPointSelector(
+        (width / 2 - 1, length / 2, 10))),  # x-z faces to mount the linkage on
+    "right_end": result.faces(cq.selectors.NearestToPointSelector(
+        (width / 2 - 1, -length / 2, 10))),
+}
+
+if "show_object" in globals():  # CQ-editor
+    show_object(result, name="part")

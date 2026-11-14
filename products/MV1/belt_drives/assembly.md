@@ -18,5 +18,8 @@ with the motor on the base link and with the hub at the wheel end. Two
 shock absorbers will go from the base link's top extensions to joints on
 the bottom link.
 
+The lateral links are extended by 300 %, the top link's width is halved,
+and the necks of the Ys are closed up flat.
+
 For now only the links are designed, with basic joints, to be refined
 later.

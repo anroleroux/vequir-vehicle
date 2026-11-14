@@ -4,4 +4,6 @@ down past the bottom link, to have the wheel hub below the bottom link.
 A bearing for the drive shaft sits in it, in the middle between the lateral
 links; a belt will run from the shaft's end down to the hub.
 
+The neck of the Y is closed up, so that it is flat.
+
 The joints are kept basic for now, to be refined later.

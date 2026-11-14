@@ -5,11 +5,13 @@ x-y plane (its thickness along z), with a hinge knuckle along x across each
 end: the middle knuckle between an upright's two top ends.
 
 Assumptions where the description is silent:
-- 55 mm between its hinge axes (along y), as the drives' arms; 3 mm thick;
-- 16 mm wide (x), 0.2 mm clear of the uprights' top ends each side;
+- 220 mm between its hinge axes (along y): the first 55 mm, extended by
+  300 %; 3 mm thick;
+- 8 mm wide (x), half the first 16 mm, 0.2 mm clear of the uprights' top
+  ends each side;
 - a knuckle of 3 mm radius across each end, with a 2.2 mm hole along its
   axis for a 2 mm pin;
-- the axes at y = 0 and y = 55 mm, 3 mm up (the knuckles stand on z = 0),
+- the axes at y = 0 and y = 220 mm, 3 mm up (the knuckles stand on z = 0),
   the bar on their mid-plane, centred on x = 0.
 """
 import cadquery as cq
@@ -17,7 +19,7 @@ import cadquery as cq
 base = load_part("../base_link")  # the upright it hinges on
 
 # parameters, in mm
-length = 55.0  # between the hinge axes, along y
+length = 220.0  # between the hinge axes, along y: 55 mm, extended by 300 %
 thickness = 3.0  # along z
 width = 2 * base.bar_half  # along x, between the uprights' top ends
 knuckle_radius = base.knuckle_radius

@@ -4,6 +4,8 @@ upside-down triangle. The two top ends go up a little, to the two sides of
 the top hinge, and extend diagonally, laterally and up some more, to a
 joint each for a shock absorber.
 
+The neck of the Y is closed up, so that it is flat.
+
 A bearing for the drive shaft sits in it, in the middle between the lateral
 links.
 

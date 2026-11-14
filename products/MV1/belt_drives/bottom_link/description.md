@@ -5,4 +5,6 @@ and at the other to the wheel link's.
 It carries two joints for the lower ends of the two shock absorbers, which
 come down from the base link's top extensions.
 
+It is extended by 300 %, with the top link.
+
 The joints are kept basic for now, to be refined later.

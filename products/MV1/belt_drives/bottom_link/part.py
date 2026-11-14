@@ -7,7 +7,7 @@ upright's stem. A lug stands on each bar, the lower joint of a shock
 absorber that comes down from the base link's top extension above it.
 
 Assumptions where the description is silent:
-- the top link's 55 mm between its hinge axes (along y), so the linkage is
+- the top link's 220 mm between its hinge axes (along y), so the linkage is
   a parallelogram; 3 mm thick;
 - the bars start 5 mm either side of x = 0 (0.2 mm clear of the stems'
   knuckles) and run out to the uprights' overall width (26.4 mm): 8.2 mm
@@ -15,11 +15,11 @@ Assumptions where the description is silent:
 - the crossbar is 10 mm long (y), in the middle of the link;
 - a knuckle of 3 mm radius across each bar's ends, with a 2.2 mm hole along
   each axis for a 2 mm pin;
-- each shock lug is 5 mm thick (x), in the plane of the base link's top
-  end above it, standing on its bar to a rounded end (4 mm radius) about a
+- each shock lug is 5 mm thick (x), in the plane of the base link's shock
+  joint above it, standing on its bar to a rounded end (4 mm radius) about a
   2.2 mm hole along x, 36 mm out from the base end's axis and 7 mm above
   the axes;
-- the axes at y = 0 and y = 55 mm, 3 mm up (the knuckles stand on z = 0),
+- the axes at y = 0 and y = 220 mm, 3 mm up (the knuckles stand on z = 0),
   the bars on their mid-plane, centred on x = 0.
 """
 import cadquery as cq
@@ -44,8 +44,8 @@ width = 2 * outer
 axis_z = knuckle_radius
 axes_y = [0.0, length]  # base end, wheel end
 shock_joint_z = axis_z + shock_joint_up
-lug_x = [base.prong_inner, -base.prong_outer]  # each lug's -x face
-lug_width = base.prong_width
+lug_x = [base.prong_outer - base.shock_width, -base.prong_outer]  # each lug's -x face
+lug_width = base.shock_width
 
 
 def _along_x(x0, x1, y, z, radius):

@@ -378,9 +378,10 @@ def test_the_belt_drives_links_make_a_four_bar_linkage(tmp_path):
                    "shock_joint_left", "shock_joint_right", "back"):
         assert base["regions"][region]["count"] == 1
     top = _summary(build_part(links / "top_link/part.py", tmp_path / "top"))
-    assert top["bounding_box"]["size"] == pytest.approx([16.0, 61.0, 6.0], abs=1e-3)
+    # 8 mm wide, 220 mm between its axes
+    assert top["bounding_box"]["size"] == pytest.approx([8.0, 226.0, 6.0], abs=1e-3)
     bottom = _summary(build_part(links / "bottom_link/part.py", tmp_path / "bottom"))
-    assert bottom["bounding_box"]["size"] == pytest.approx([26.4, 61.0, 14.0], abs=1e-3)
+    assert bottom["bounding_box"]["size"] == pytest.approx([26.4, 226.0, 14.0], abs=1e-3)
     assert bottom["n_solids"] == 1  # the two bars, joined by the crossbar
     assert bottom["regions"]["shock_joint_left"]["count"] == 1
     assert bottom["regions"]["shock_joint_right"]["count"] == 1

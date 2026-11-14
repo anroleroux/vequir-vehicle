@@ -1,8 +1,8 @@
 """Belt drive wheel link
 
 The moving upright of the belt drive's four-bar linkage: the base link's Y
-plate (one hinge at the bottom middle, two top ends either side of the top
-hinge, the drive shaft's bearing seat half way between), without the shock
+plate (one hinge at the bottom middle, its neck closed up flat, two top ends
+either side of the top hinge, the drive shaft's bearing seat half way between), without the shock
 joints, its stem carried on down past the bottom link to the wheel hub's
 bearing. A belt will run from the drive shaft's end down to the hub.
 
